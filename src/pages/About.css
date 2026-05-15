@@ -1,0 +1,141 @@
+.about-page {
+  padding-bottom: 5rem;
+}
+
+.about-hero {
+  padding: 8rem 0 4rem;
+  text-align: center;
+}
+
+.about-hero h1 {
+  font-size: 5rem;
+  line-height: 0.9;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: var(--secondary-accent);
+  font-size: 0.9rem;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-bottom: 8rem;
+}
+
+.about-text-section h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--accent-color);
+}
+
+.manifesto {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 2rem;
+  color: var(--white);
+  border-left: 4px solid var(--accent-color);
+  padding-left: 2rem;
+}
+
+.about-text-section p {
+  color: #888;
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+
+.about-image-placeholder {
+  height: 500px;
+  background: var(--dark-grey);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.about-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 8rem;
+  border-top: 1px solid var(--dark-grey);
+  border-bottom: 1px solid var(--dark-grey);
+  padding: 4rem 0;
+}
+
+.stat-item h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--white);
+}
+
+.stat-item p {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.about-lifestyle {
+  width: 100%;
+  height: 600px;
+  margin-bottom: 8rem;
+  overflow: hidden;
+  border: 1px solid var(--dark-grey);
+}
+
+.lifestyle-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+  filter: grayscale(0.5);
+  transition: all 0.5s ease;
+}
+
+.about-lifestyle:hover .lifestyle-img {
+  filter: grayscale(0);
+  transform: scale(1.05);
+}
+
+.about-cta {
+  text-align: center;
+  background: var(--dark-grey);
+  padding: 5rem 2rem;
+  border: 1px solid #333;
+}
+
+.about-cta h2 {
+  margin-bottom: 1rem;
+}
+
+.about-cta p {
+  margin-bottom: 3rem;
+  color: #888;
+}
+
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .about-stats {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .about-hero h1 {
+    font-size: 3.5rem;
+  }
+}

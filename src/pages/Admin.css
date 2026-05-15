@@ -1,0 +1,23 @@
+.admin-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.admin-dashboard {
+  min-height: 80vh;
+}
+
+.orders-list {
+  margin-top: 2rem;
+}
+
+.order-card {
+  transition: all 0.3s ease;
+}
+
+.order-card:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
