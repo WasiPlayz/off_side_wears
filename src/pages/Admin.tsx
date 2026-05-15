@@ -32,6 +32,8 @@ interface Order {
     subtotal: number;
     shipping: number;
     total: number;
+    amountPaid?: number;
+    balanceDue?: number;
   };
   status: string;
   createdAt: Timestamp | null;
@@ -336,6 +338,10 @@ const Admin: React.FC = () => {
                       VIEW SCREENSHOT
                     </a>
                   )}
+                  <div style={{ marginTop: '1rem', padding: '0.8rem', background: '#000', border: '1px solid #222' }}>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--accent-color)' }}>PAID: {order.orderSummary.amountPaid || 0} BDT</p>
+                    <p style={{ fontSize: '0.8rem', color: '#fbbf24' }}>DUE: {order.orderSummary.balanceDue || 0} BDT</p>
+                  </div>
                 </div>
               </div>
 

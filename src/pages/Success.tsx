@@ -1,74 +1,167 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { toPng } from 'html-to-image';
+import './Success.css';
 
 interface SuccessProps {
   trackingNumber: string;
 }
 
 const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
-  return (
-    <div className="container" style={{ 
-      padding: '4rem 1rem', 
-      textAlign: 'center',
-      minHeight: '80vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}>
-      <div style={{ 
-        width: '80px', 
-        height: '80px', 
-        borderRadius: '50%', 
-        border: '4px solid var(--accent-color)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '2.5rem',
-        marginBottom: '2rem',
-        color: 'var(--accent-color)',
-        animation: 'pulse 2s infinite'
-      }}>
-        ✓
-      </div>
-      <h1 className="glitch-text" style={{ fontSize: 'clamp(2rem, 8vw, 4rem)', marginBottom: '1rem', lineHeight: 1.1 }}>
-        ORDER <br /> <span className="highlight">CONFIRMED</span>
-      </h1>
-      <p style={{ 
-        color: 'var(--text-color)', 
-        opacity: 0.7, 
-        fontWeight: 600, 
-        marginBottom: '3rem', 
-        maxWidth: '500px',
-        fontSize: '0.9rem',
-        lineHeight: 1.6
-      }}>
-        YOUR DATA HAS BEEN TRANSMITTED THROUGH OUR SECURE PROTOCOLS. 
-        OUR TEAM IS PREPARING YOUR ELITE KITS FOR DEPLOYMENT. 
-        EXPECT ARRIVAL AT YOUR COORDINATES WITHIN 2-3 BUSINESS DAYS.
-      </p>
-      
-      <div style={{ 
-        background: 'var(--dark-grey)', 
-        padding: '2rem', 
-        border: '1px solid #222',
-        marginBottom: '3rem',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h4 style={{ color: 'var(--accent-color)', marginBottom: '1rem', letterSpacing: '2px' }}>LOGISTICS INTEL</h4>
-        <p style={{ fontSize: '0.8rem', color: '#888' }}>TRACKING NUMBER: #OFF-{trackingNumber}</p>
-      </div>
+  const receiptRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsSubmitting] = useState(false);
+  const [orderInfo, setOrderInfo] = useState<any>(null);
 
-      <Link to="/" className="btn-primary">RETURN TO SHOP</Link>
+  // Load order data from sessionStorage (saved during checkout)
+  useEffect(() => {
+    const savedOrder = sessionStorage.getItem('lastOrderDetails');
+    if (savedOrder) {
+      setOrderInfo(JSON.parse(savedOrder));
+    }
+  }, []);
 
-      <style>{`
-        @keyframes pulse {
-          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-          70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
-          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  const handleDownloadReceipt = async () => {
+    if (receiptRef.current === null) return;
+    
+    setIsSubmitting(true);
+    try {
+      const dataUrl = await toPng(receiptRef.current, { 
+        cacheBust: true,
+        backgroundColor: '#0a0518',
+        style: {
+          padding: '40px',
+          display: 'flex',
+          flexDirection: 'column'
         }
-      `}</style>
+      });
+      
+      const link = document.createElement('a');
+      link.download = `OFF_SIDE_RECEIPT_${trackingNumber}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to generate receipt', err);
+      alert('FAILED TO GENERATE RECEIPT. PLEASE TAKE A SCREENSHOT INSTEAD.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="success-page container">
+      <div className="success-content-wrapper">
+        <div className="success-icon-box">
+          <div className="check-mark">✓</div>
+        </div>
+        
+        <h1 className="glitch-text">ORDER <br /><span className="highlight">SECURED</span></h1>
+        
+        <p className="success-message">
+          YOUR DATA HAS BEEN TRANSMITTED TO THE ARCHIVE. 
+          THE ELITE KITS ARE BEING PREPARED FOR DEPLOYMENT.
+        </p>
+
+        {orderInfo?.paymentInfo?.method === 'cod' && (
+          <div style={{ marginBottom: '2rem', padding: '1rem', background: 'rgba(251, 191, 36, 0.1)', border: '1px solid #fbbf24', borderRadius: '4px' }}>
+            <p style={{ color: '#fbbf24', fontWeight: 800, fontSize: '0.8rem', letterSpacing: '1px' }}>
+              PROTOCOL: CASH ON DELIVERY (PRODUCT PRICE DUE)
+            </p>
+          </div>
+        )}
+
+        <div className="success-actions">
+          <button 
+            onClick={handleDownloadReceipt} 
+            className="btn-primary download-btn" 
+            disabled={isDownloading}
+          >
+            {isDownloading ? 'GENERATING...' : 'DOWNLOAD RECEIPT'}
+          </button>
+          <Link to="/" className="btn-secondary">RETURN TO SHOP</Link>
+        </div>
+
+        {/* Hidden Receipt Template for html-to-image */}
+        <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+          <div ref={receiptRef} className="receipt-template">
+            <div className="receipt-header">
+              <div className="receipt-logo">OFF_SIDE</div>
+              <div className="receipt-status">RECEIPT</div>
+            </div>
+            
+            <div className="receipt-meta">
+              <div className="meta-item">
+                <span>TRACKING ID:</span>
+                <strong>#OFF-{trackingNumber}</strong>
+              </div>
+              <div className="meta-item">
+                <span>DATE:</span>
+                <strong>{new Date().toLocaleDateString()}</strong>
+              </div>
+            </div>
+
+            <div className="receipt-section">
+              <h4>CUSTOMER INTEL</h4>
+              <p>{orderInfo?.customerInfo?.fullName || 'VERIFIED CLIENT'}</p>
+              <p>{orderInfo?.customerInfo?.phone || ''}</p>
+              <p>{orderInfo?.customerInfo?.address || ''}, {orderInfo?.customerInfo?.thana || ''}</p>
+              <p>{orderInfo?.customerInfo?.district || ''}</p>
+            </div>
+
+            <div className="receipt-section">
+              <h4>PAYMENT PROTOCOL</h4>
+              <div className="receipt-item-row">
+                <span>METHOD:</span>
+                <span style={{ textTransform: 'uppercase' }}>{orderInfo?.paymentInfo?.method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</span>
+              </div>
+              <div className="receipt-item-row">
+                <span>GATEWAY:</span>
+                <span style={{ textTransform: 'uppercase' }}>{orderInfo?.paymentInfo?.mobileBanking || 'N/A'}</span>
+              </div>
+              <div className="receipt-item-row">
+                <span>TRANSACTION ID:</span>
+                <span style={{ color: 'var(--accent-color)' }}>{orderInfo?.paymentInfo?.transactionId || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="receipt-section">
+              <h4>SECURED ITEMS</h4>
+              <div className="receipt-items">
+                {orderInfo?.items?.map((item: any, idx: number) => (
+                  <div key={idx} className="receipt-item-row">
+                    <span>{item.quantity}x {item.name} ({item.size})</span>
+                    <span>{item.price} BDT</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="receipt-footer">
+              <div className="total-row">
+                <span>SUBTOTAL:</span>
+                <span>{orderInfo?.orderSummary?.subtotal || 0} BDT</span>
+              </div>
+              <div className="total-row">
+                <span>SHIPPING:</span>
+                <span>{orderInfo?.orderSummary?.shipping || 0} BDT</span>
+              </div>
+              <div className="total-row" style={{ color: 'var(--accent-color)', marginTop: '1rem', borderTop: '1px solid #222', paddingTop: '1rem' }}>
+                <span>AMOUNT PAID (NOW):</span>
+                <span>{orderInfo?.orderSummary?.amountPaid || 0} BDT</span>
+              </div>
+              <div className="total-row" style={{ color: '#fbbf24' }}>
+                <span>BALANCE DUE (ON DELIVERY):</span>
+                <span>{orderInfo?.orderSummary?.balanceDue || 0} BDT</span>
+              </div>
+              <div className="total-row grand">
+                <span>TOTAL ORDER VALUE:</span>
+                <span>{orderInfo?.orderSummary?.total || 0} BDT</span>
+              </div>
+            </div>
+            
+            <div className="receipt-watermark">AUTHENTIC 1:1 GRADE PROTOCOL</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

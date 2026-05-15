@@ -38,6 +38,10 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
   const subtotal = items.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
   const shipping = district.toLowerCase() === 'dhaka' ? 60 : 120;
   const total = subtotal + shipping;
+  
+  // New logic: If COD, only shipping is paid now, subtotal is due. If Online, everything is paid now.
+  const amountPaid = paymentMethod === 'cod' ? shipping : (paymentMethod === 'online' ? total : 0);
+  const balanceDue = paymentMethod === 'cod' ? subtotal : 0;
 
   const availableThanas = thanas[district] || ["Sadar", "Other"];
 
@@ -108,7 +112,9 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
           method: paymentMethod,
           mobileBanking,
           transactionId,
-          screenshotUrl
+          screenshotUrl,
+          amountPaid,
+          balanceDue
         },
         items: items.map(item => ({
           id: item.id,
@@ -120,13 +126,18 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
         orderSummary: {
           subtotal,
           shipping,
-          total
+          total,
+          amountPaid,
+          balanceDue
         },
         status: 'pending',
         createdAt: serverTimestamp()
       };
 
       await addDoc(collection(db, 'orders'), orderData);
+      
+      // Save for receipt generation
+      sessionStorage.setItem('lastOrderDetails', JSON.stringify(orderData));
       
       try {
         const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -168,6 +179,9 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
             shipping_cost: shipping,
             tax_cost: 0,
             total_cost: total,
+            amount_paid: amountPaid,
+            balance_due: balanceDue,
+            payment_method: paymentMethod === 'cod' ? 'Cash on Delivery (Product Price Due)' : 'Online Payment (Full Paid)',
             order_items_html: itemsHtml,
             website_link: window.location.origin
           };
@@ -252,7 +266,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
                 type="button"
                 className={`filter-btn ${paymentMethod === 'cod' ? 'active' : ''}`}
                 onClick={() => setPaymentMethod('cod')}
-                style={{ flex: 1, padding: '1rem', background: paymentMethod === 'cod' ? 'var(--accent-color)' : '#222', color: '#fff', border: '1px solid #444', cursor: 'pointer', fontWeight: 'bold' }}
+                style={{ flex: 1, padding: '1.2rem', background: paymentMethod === 'cod' ? 'var(--accent-color)' : '#111', color: '#fff', border: '1px solid #222', cursor: 'pointer', fontWeight: '900', letterSpacing: '1px' }}
               >
                 CASH ON DELIVERY
               </button>
@@ -260,27 +274,27 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
                 type="button"
                 className={`filter-btn ${paymentMethod === 'online' ? 'active' : ''}`}
                 onClick={() => setPaymentMethod('online')}
-                style={{ flex: 1, padding: '1rem', background: paymentMethod === 'online' ? 'var(--accent-color)' : '#222', color: '#fff', border: '1px solid #444', cursor: 'pointer', fontWeight: 'bold' }}
+                style={{ flex: 1, padding: '1.2rem', background: paymentMethod === 'online' ? 'var(--accent-color)' : '#111', color: '#fff', border: '1px solid #222', cursor: 'pointer', fontWeight: '900', letterSpacing: '1px' }}
               >
                 ONLINE PAYMENT
               </button>
             </div>
 
             {paymentMethod && (
-              <div className="manual-payment-flow" style={{ background: '#111', padding: '1.5rem', border: '1px solid #333' }}>
+              <div className="manual-payment-flow" style={{ background: '#050505', padding: '2rem', border: '1px solid #1a1a1a', marginTop: '2rem' }}>
                 {paymentMethod === 'cod' && (
-                  <p style={{ color: 'var(--accent-color)', marginBottom: '1.5rem', fontWeight: 600, fontSize: '0.9rem', textAlign: 'center' }}>
-                    You must pay the delivery charge first
+                  <p style={{ color: 'var(--accent-color)', marginBottom: '2rem', fontWeight: 800, fontSize: '0.8rem', textAlign: 'center', letterSpacing: '1px' }}>
+                    * DELIVERY CHARGE {shipping} BDT MUST BE PAID IN ADVANCE TO CONFIRM ORDER
                   </p>
                 )}
                 {paymentMethod === 'online' && (
-                  <p style={{ color: 'var(--accent-color)', marginBottom: '1.5rem', fontWeight: 600, fontSize: '0.9rem', textAlign: 'center' }}>
-                    Pay {total} BDT
+                  <p style={{ color: 'var(--accent-color)', marginBottom: '2rem', fontWeight: 800, fontSize: '0.8rem', textAlign: 'center', letterSpacing: '1px' }}>
+                    * PAY TOTAL AMOUNT {total} BDT TO INITIATE SHIPMENT
                   </p>
                 )}
                 
-                <h4 style={{ marginBottom: '1rem', fontSize: '0.85rem', color: '#888' }}>SELECT MOBILE BANKING</h4>
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                <h4 style={{ marginBottom: '1.5rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 900, letterSpacing: '2px', textAlign: 'center' }}>SELECT MOBILE BANKING GATEWAY</h4>
+                <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '2rem' }}>
                   {['bKash', 'Nagad', 'Rocket'].map(method => {
                     const methodKey = method.toLowerCase() as 'bkash' | 'nagad' | 'rocket';
                     return (
@@ -290,14 +304,16 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
                         onClick={() => setMobileBanking(methodKey)}
                         style={{ 
                           flex: 1, 
-                          padding: '0.8rem', 
-                          background: mobileBanking === methodKey ? 'var(--accent-color)' : '#222',
+                          padding: '1rem', 
+                          background: mobileBanking === methodKey ? 'var(--accent-color)' : '#111',
                           color: '#fff',
-                          border: 'none',
+                          border: '1px solid #222',
                           cursor: 'pointer',
                           textTransform: 'uppercase',
-                          fontWeight: 'bold',
-                          fontSize: '0.9rem'
+                          fontWeight: '900',
+                          fontSize: '0.8rem',
+                          letterSpacing: '1px',
+                          transition: 'all 0.3s ease'
                         }}
                       >
                         {method}
@@ -307,34 +323,38 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
                 </div>
 
                 {mobileBanking && (
-                  <div className="payment-details">
-                    <p style={{ fontSize: '1.2rem', marginBottom: '1.5rem', textAlign: 'center', background: '#000', padding: '1rem', border: '1px dashed var(--accent-color)' }}>
-                      Send Money : <strong style={{ color: 'var(--accent-color)', letterSpacing: '2px' }}>{mobileBanking === 'rocket' ? '016094765878' : '01609476587'}</strong>
-                    </p>
+                  <div className="payment-details-info" style={{ animation: 'fadeIn 0.5s ease' }}>
+                    <div style={{ background: '#000', padding: '1.5rem', border: '1px dashed var(--accent-color)', marginBottom: '2rem', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginBottom: '0.5rem' }}>SEND MONEY TO:</span>
+                      <strong style={{ color: 'var(--accent-color)', letterSpacing: '3px', fontSize: '1.4rem' }}>
+                        {mobileBanking === 'rocket' ? '016094765878' : '01609476587'}
+                      </strong>
+                    </div>
 
                     <div className="form-group">
                       <label>TRANSACTION ID</label>
                       <input 
                         type="text" 
-                        placeholder="ENTER TRANSACTION ID" 
+                        placeholder="ENTER TRX ID" 
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
-                        style={{ borderColor: '#444' }}
+                        style={{ borderColor: '#222' }}
                       />
                     </div>
                     <div className="form-group" style={{ marginTop: '1rem' }}>
-                      <label>SCREENSHOT OF TRANSACTION</label>
+                      <label>TRANSACTION SCREENSHOT (OPTIONAL BUT RECOMMENDED)</label>
                       <input 
                         type="file" 
                         accept="image/*"
                         onChange={(e) => setScreenshot(e.target.files ? e.target.files[0] : null)}
                         style={{ 
-                          background: '#222', 
-                          padding: '0.8rem', 
+                          background: '#111', 
+                          padding: '1rem', 
                           color: '#fff', 
-                          border: '1px solid #444', 
+                          border: '1px solid #222', 
                           width: '100%',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          fontSize: '0.8rem'
                         }}
                       />
                     </div>
@@ -348,9 +368,9 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
             type="submit"
             className="btn-primary full-width" 
             disabled={items.length === 0 || isSubmitting}
-            style={{ marginTop: '1rem' }}
+            style={{ marginTop: '2rem', height: '60px', fontSize: '1rem', letterSpacing: '2px' }}
           >
-            {isSubmitting ? 'PROCESSING...' : 'COMPLETE ORDER'}
+            {isSubmitting ? 'TRANSMITTING ORDER...' : 'COMPLETE ORDER PROTOCOL'}
           </button>
         </form>
 
@@ -361,7 +381,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
               <div key={`${item.id}-${idx}`} className="summary-item">
                 <div className="summary-item-info">
                   <span className="summary-name">{item.name}</span>
-                  <span className="summary-meta">SIZE: {item.size || 'N/A'} x{item.quantity}</span>
+                  <span className="summary-meta">SIZE: {item.size || 'N/A'} • QTY: {item.quantity}</span>
                 </div>
                 <span className="summary-price">{(parseFloat(item.price) * item.quantity)} BDT</span>
               </div>
@@ -370,14 +390,26 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
           <div className="summary-total">
             <div className="total-row">
               <span>SUBTOTAL</span>
-              <span>{subtotal} BDT</span>
+              <span style={{ color: '#fff' }}>{subtotal} BDT</span>
             </div>
             <div className="total-row">
               <span>SHIPPING ({district || 'NOT SELECTED'})</span>
-              <span>{shipping} BDT</span>
+              <span style={{ color: '#fff' }}>{shipping} BDT</span>
             </div>
+            {paymentMethod === 'cod' && (
+              <>
+                <div className="total-row" style={{ color: 'var(--accent-color)' }}>
+                  <span>PAID NOW (DELIVERY CHARGE)</span>
+                  <span>{amountPaid} BDT</span>
+                </div>
+                <div className="total-row" style={{ color: '#fbbf24' }}>
+                  <span>DUE ON DELIVERY (PRODUCT PRICE)</span>
+                  <span>{balanceDue} BDT</span>
+                </div>
+              </>
+            )}
             <div className="total-row grand-total">
-              <span>TOTAL</span>
+              <span>GRAND TOTAL</span>
               <span>{total} BDT</span>
             </div>
           </div>
