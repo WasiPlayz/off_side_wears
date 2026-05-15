@@ -33,7 +33,6 @@ const TrackOrder: React.FC = () => {
     e.preventDefault();
     if (!trackingInput.trim()) return;
 
-    // Clean up input (in case they type #OFF-123456 or just 123456)
     const cleanTracking = trackingInput.replace('#OFF-', '').trim();
 
     setLoading(true);
@@ -47,12 +46,11 @@ const TrackOrder: React.FC = () => {
       if (querySnapshot.empty) {
         setError("NO ORDER FOUND WITH THIS TRACKING NUMBER. PLEASE CHECK AND TRY AGAIN.");
       } else {
-        // Assuming tracking numbers are unique, take the first one
         setOrderData(querySnapshot.docs[0].data() as TrackedOrderData);
       }
     } catch (err) {
       console.error("Error fetching order:", err);
-      setError("SYSTEM ERROR. UNABLE TO COMMUNICATE WITH THE ARCHIVE.");
+      setError("SYSTEM ERROR. UNABLE TO COMMUNICATE WITH THE SERVER.");
     } finally {
       setLoading(false);
     }
@@ -60,10 +58,11 @@ const TrackOrder: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending': return '#fbbf24'; // yellow
-      case 'processing': return '#60a5fa'; // blue
-      case 'shipped': return '#a78bfa'; // light blue
-      case 'completed': return '#4ade80'; // green
+      case 'pending': return '#fbbf24';
+      case 'processing': return '#60a5fa';
+      case 'shipped': return '#a78bfa';
+      case 'completed': return '#4ade80';
+      case 'cancelled': return '#ef4444';
       default: return 'var(--accent-color)';
     }
   };
@@ -75,7 +74,7 @@ const TrackOrder: React.FC = () => {
       </h1>
 
       <div className="track-search-container">
-        <p style={{ textAlign: 'center', color: '#888', marginBottom: '2rem' }}>
+        <p style={{ textAlign: 'center', marginBottom: '2rem' }}>
           ENTER YOUR 6-DIGIT TRACKING NUMBER TO VIEW CURRENT LOGISTICS INTEL.
         </p>
 
@@ -85,7 +84,7 @@ const TrackOrder: React.FC = () => {
             placeholder="e.g. 123456 or #OFF-123456" 
             value={trackingInput}
             onChange={(e) => setTrackingInput(e.target.value)}
-            style={{ flex: 1, padding: '1rem', background: '#111', border: '1px solid #444', color: '#fff', fontSize: '1.1rem' }}
+            style={{ flex: 1, padding: '1rem', border: '1px solid #444', fontSize: '1.1rem' }}
           />
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'SEARCHING...' : 'TRACK'}
@@ -99,13 +98,13 @@ const TrackOrder: React.FC = () => {
         )}
 
         {orderData && (
-          <div className="track-results" style={{ marginTop: '3rem', maxWidth: '600px', margin: '3rem auto 0', background: '#111', border: '1px solid #333', padding: '2rem' }}>
-            <h3 style={{ marginBottom: '1.5rem', color: 'var(--white)', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
+          <div className="track-results" style={{ marginTop: '3rem', maxWidth: '600px', margin: '3rem auto 0', border: '1px solid #333', padding: '2rem' }}>
+            <h3 style={{ marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
               LOGISTICS INTEL: <span style={{ color: 'var(--accent-color)' }}>#OFF-{orderData.trackingNumber}</span>
             </h3>
             
-            <div style={{ marginBottom: '2rem', textAlign: 'center', padding: '2rem', background: '#000', border: '1px dashed #444' }}>
-              <p style={{ color: '#888', marginBottom: '0.5rem', fontSize: '0.9rem' }}>CURRENT STATUS</p>
+            <div className="status-box" style={{ marginBottom: '2rem', textAlign: 'center', padding: '2rem', border: '1px dashed #444' }}>
+              <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>CURRENT STATUS</p>
               <h2 style={{ color: getStatusColor(orderData.status), letterSpacing: '2px', margin: 0 }}>
                 {orderData.status.toUpperCase()}
               </h2>
@@ -113,21 +112,21 @@ const TrackOrder: React.FC = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
               <div>
-                <h4 style={{ color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>SHIPPING TO</h4>
+                <h4 style={{ marginBottom: '0.5rem', fontSize: '0.8rem' }}>SHIPPING TO</h4>
                 <p style={{ margin: '0.2rem 0' }}>{orderData.customerInfo.fullName}</p>
                 <p style={{ margin: '0.2rem 0' }}>{orderData.customerInfo.district}, {orderData.customerInfo.thana}</p>
               </div>
               <div>
-                <h4 style={{ color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>ORDER SUMMARY</h4>
+                <h4 style={{ marginBottom: '0.5rem', fontSize: '0.8rem' }}>ORDER SUMMARY</h4>
                 <p style={{ margin: '0.2rem 0' }}>Items: {orderData.items.reduce((acc, item) => acc + item.quantity, 0)}</p>
                 <p style={{ margin: '0.2rem 0' }}>Total: <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>{orderData.orderSummary.total} BDT</span></p>
               </div>
             </div>
             
-            <div style={{ marginTop: '2rem', borderTop: '1px solid #333', paddingTop: '1.5rem' }}>
-               <h4 style={{ color: '#888', marginBottom: '1rem', fontSize: '0.8rem' }}>ITEMS SECURED</h4>
+            <div className="items-secured" style={{ marginTop: '2rem', borderTop: '1px solid #333', paddingTop: '1.5rem' }}>
+               <h4 style={{ marginBottom: '1rem', fontSize: '0.8rem' }}>ITEMS SECURED</h4>
                {orderData.items.map((item, idx) => (
-                 <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                 <div key={idx} className="item-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
                    <span>{item.quantity}x {item.name} ({item.size})</span>
                  </div>
                ))}

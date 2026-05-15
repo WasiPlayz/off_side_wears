@@ -96,6 +96,23 @@ section {
   font-size: 0.7rem;
 }
 
+.loading-screen {
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--accent-color);
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
 /* Responsive Utilities */
 @media (max-width: 768px) {
   .container {

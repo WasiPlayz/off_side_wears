@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { collection, query, orderBy, getDocs, updateDoc, doc, Timestamp, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { products as localProducts } from '../data/products';
@@ -55,9 +55,10 @@ const Admin: React.FC = () => {
   const [newProdCategory, setNewProdCategory] = useState('PLAYER EDITION');
   const [newProdPrice, setNewProdPrice] = useState('');
   const [newProdImg, setNewProdImg] = useState('');
+  const [newProdInStock, setNewProdInStock] = useState(true);
   const [newProdImages, setNewProdImages] = useState<string[]>([]); // For multiple images
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
@@ -72,9 +73,9 @@ const Admin: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, 'products'));
@@ -86,14 +87,14 @@ const Admin: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
       if (activeTab === 'orders') fetchOrders();
       if (activeTab === 'inventory') fetchProducts();
     }
-  }, [activeTab, isAuthenticated]);
+  }, [activeTab, isAuthenticated, fetchOrders, fetchProducts]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,6 +118,7 @@ const Admin: React.FC = () => {
     setNewProdCategory(product.category);
     setNewProdPrice(product.price);
     setNewProdImg(product.img);
+    setNewProdInStock(product.inStock !== false);
     setNewProdImages(product.images && product.images.length > 0 ? product.images : [product.img]);
     window.scrollTo(0, 0);
   };
@@ -126,6 +128,7 @@ const Admin: React.FC = () => {
     setNewProdName('');
     setNewProdPrice('');
     setNewProdImg('');
+    setNewProdInStock(true);
     setNewProdImages([]);
   };
 
@@ -148,7 +151,7 @@ const Admin: React.FC = () => {
     setLoading(true);
     try {
       for (const p of localProducts) {
-        await setDoc(doc(db, 'products', String(p.id)), p);
+        await setDoc(doc(db, 'products', String(p.id)), { ...p, inStock: true });
       }
       alert("Database seeded successfully!");
       fetchProducts();
@@ -181,6 +184,7 @@ const Admin: React.FC = () => {
         category: newProdCategory,
         price: newProdPrice,
         img: newProdImg,
+        inStock: newProdInStock,
         images: filteredImages.length > 0 ? filteredImages : [newProdImg]
       };
 
@@ -238,7 +242,7 @@ const Admin: React.FC = () => {
                 style={{ width: '100%', padding: '1rem', background: '#222', border: '1px solid #444', color: '#fff', marginBottom: '1rem' }}
               />
             </div>
-            <button type="submit" className="btn-primary full-width">ACCESS ARCHIVE</button>
+            <button type="submit" className="btn-primary full-width">ACCESS DASHBOARD</button>
           </form>
         </div>
       </div>
@@ -282,7 +286,17 @@ const Admin: React.FC = () => {
                   <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '0.2rem' }}>{order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString() : 'Recent'}</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span style={{ fontWeight: 'bold', padding: '0.5rem 1rem', background: '#222', border: `1px solid ${order.status === 'completed' ? '#4ade80' : 'var(--accent-color)'}` }}>
+                  <span style={{ 
+                    fontWeight: 'bold', 
+                    padding: '0.5rem 1rem', 
+                    background: '#222', 
+                    border: `1px solid ${
+                      order.status === 'completed' ? '#4ade80' : 
+                      order.status === 'cancelled' ? '#ef4444' : 
+                      'var(--accent-color)'
+                    }`,
+                    color: order.status === 'cancelled' ? '#ef4444' : 'inherit'
+                  }}>
                     {order.status.toUpperCase()}
                   </span>
                   <select 
@@ -294,6 +308,7 @@ const Admin: React.FC = () => {
                     <option value="processing">PROCESSING</option>
                     <option value="shipped">SHIPPED</option>
                     <option value="completed">COMPLETED</option>
+                    <option value="cancelled">CANCELLED</option>
                   </select>
                 </div>
               </div>
@@ -340,7 +355,7 @@ const Admin: React.FC = () => {
           ))}
           {orders.length === 0 && (
             <div style={{ textAlign: 'center', padding: '3rem', background: '#111', color: '#888' }}>
-              NO ORDERS FOUND IN THE ARCHIVE
+              NO ORDERS FOUND
             </div>
           )}
         </div>
@@ -371,6 +386,18 @@ const Admin: React.FC = () => {
               <div className="form-group" style={{ gridColumn: 'span 1' }}>
                 <label style={{ fontSize: '0.7rem', color: '#888' }}>MAIN THUMBNAIL URL</label>
                 <input type="text" placeholder="Thumbnail Image URL" value={newProdImg} onChange={e=>setNewProdImg(e.target.value)} required style={{ width: '100%', padding: '0.8rem', background: '#222', border: '1px solid #444', color: '#fff' }} />
+              </div>
+
+              <div className="form-group" style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', gap: '1rem', background: '#000', padding: '1rem', border: '1px solid #222' }}>
+                <label style={{ fontSize: '0.8rem', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={newProdInStock} 
+                    onChange={e => setNewProdInStock(e.target.checked)} 
+                    style={{ width: '20px', height: '20px', accentColor: 'var(--accent-color)' }}
+                  />
+                  PRODUCT IS IN STOCK
+                </label>
               </div>
 
               <div style={{ gridColumn: 'span 2', background: '#000', padding: '1rem', border: '1px solid #222' }}>
@@ -418,7 +445,10 @@ const Admin: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <img src={p.img} alt={p.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
                   <div>
-                    <h4 style={{ margin: 0, color: '#fff' }}>{p.name}</h4>
+                    <h4 style={{ margin: 0, color: '#fff' }}>
+                      {p.name} 
+                      {p.inStock === false && <span style={{ marginLeft: '1rem', fontSize: '0.6rem', background: '#ef4444', color: '#fff', padding: '0.1rem 0.4rem', borderRadius: '2px' }}>OUT OF STOCK</span>}
+                    </h4>
                     <p style={{ margin: 0, color: '#888', fontSize: '0.8rem' }}>ID: {p.id} | {p.category} | {p.price} BDT | {p.images?.length || 1} images</p>
                   </div>
                 </div>

@@ -5,4 +5,5 @@ export interface Product {
   price: string;
   img: string;
   images?: string[];
+  inStock?: boolean;
 }

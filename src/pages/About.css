@@ -1,141 +1,256 @@
 .about-page {
-  padding-bottom: 5rem;
+  background: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
 }
 
+/* Hero Section */
 .about-hero {
-  padding: 8rem 0 4rem;
-  text-align: center;
+  height: 80vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-image: linear-gradient(rgba(10, 5, 24, 0.7), rgba(10, 5, 24, 0.7)), 
+                    url('https://images.unsplash.com/photo-1543351611-58f69d7c1781?auto=format&fit=crop&q=80&w=1920');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-.about-hero h1 {
-  font-size: 5rem;
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+.eyebrow {
+  display: block;
+  color: var(--accent-color);
+  font-weight: 900;
+  letter-spacing: 5px;
+  font-size: 0.8rem;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 1s ease-out;
+}
+
+.hero-content h1 {
+  font-size: clamp(3rem, 10vw, 6rem);
   line-height: 0.9;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .subtitle {
-  font-weight: 900;
-  letter-spacing: 4px;
-  color: var(--secondary-accent);
-  font-size: 0.9rem;
+  font-size: 1.2rem;
+  opacity: 0.8;
+  max-width: 500px;
+  line-height: 1.6;
 }
 
-.about-grid {
+/* Manifesto Section */
+.about-manifesto {
+  padding: 10rem 0;
+}
+
+.manifesto-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  gap: 6rem;
   align-items: center;
-  margin-bottom: 8rem;
 }
 
-.about-text-section h2 {
+.section-title {
+  font-size: 0.8rem;
+  letter-spacing: 5px;
+  color: var(--grey);
+  margin-bottom: 2rem;
+}
+
+.lead-text {
   font-size: 2rem;
-  margin-bottom: 2rem;
-  color: var(--accent-color);
-}
-
-.manifesto {
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.4;
-  margin-bottom: 2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 3rem;
   color: var(--white);
-  border-left: 4px solid var(--accent-color);
-  padding-left: 2rem;
 }
 
-.about-text-section p {
-  color: #888;
+.manifesto-details {
+  color: var(--grey);
   line-height: 1.8;
-  font-size: 1.1rem;
 }
 
-.about-image-placeholder {
-  height: 500px;
-  background: var(--dark-grey);
+.manifesto-details p {
+  margin-bottom: 1.5rem;
+}
+
+.manifesto-visual {
   position: relative;
-  overflow: hidden;
-  border: 1px solid #333;
 }
 
-.about-img {
+.visual-frame {
+  position: relative;
+  padding: 2rem;
+}
+
+.visual-frame img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.9;
+  height: auto;
+  border-radius: 4px;
+  position: relative;
+  z-index: 1;
 }
 
-.about-stats {
+.frame-accent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80%;
+  height: 80%;
+  border: 2px solid var(--accent-color);
+  z-index: 0;
+}
+
+/* Pillars Section */
+.about-pillars {
+  background: #0d081d;
+  padding: 8rem 0;
+}
+
+.pillars-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin-bottom: 8rem;
-  border-top: 1px solid var(--dark-grey);
-  border-bottom: 1px solid var(--dark-grey);
-  padding: 4rem 0;
+  gap: 4rem;
 }
 
-.stat-item h3 {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+.pillar-item {
+  position: relative;
+}
+
+.pillar-num {
+  font-size: 4rem;
+  font-weight: 900;
+  color: rgba(59, 130, 246, 0.1);
+  position: absolute;
+  top: -2rem;
+  left: -1rem;
+}
+
+.pillar-item h3 {
   color: var(--white);
+  letter-spacing: 3px;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
 }
 
-.stat-item p {
-  color: #666;
-  font-size: 0.9rem;
-  font-weight: 600;
+.pillar-item p {
+  color: var(--grey);
+  line-height: 1.6;
 }
 
-.about-lifestyle {
+/* Culture Section */
+.about-culture {
+  padding: 10rem 0;
+}
+
+.culture-content {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 6rem;
+  align-items: center;
+}
+
+.culture-image img {
   width: 100%;
   height: 600px;
-  margin-bottom: 8rem;
-  overflow: hidden;
-  border: 1px solid var(--dark-grey);
-}
-
-.lifestyle-img {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
-  opacity: 0.9;
-  filter: grayscale(0.5);
-  transition: all 0.5s ease;
+  border-radius: 4px;
 }
 
-.about-lifestyle:hover .lifestyle-img {
-  filter: grayscale(0);
-  transform: scale(1.05);
+.brand-signature {
+  margin-top: 3rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--accent-color);
+  font-size: 0.8rem;
 }
 
-.about-cta {
+/* CTA Section */
+.cta-box {
+  background: linear-gradient(45deg, #111, #0a0518);
+  padding: 6rem;
   text-align: center;
-  background: var(--dark-grey);
-  padding: 5rem 2rem;
-  border: 1px solid #333;
+  border: 1px solid #222;
+  margin-bottom: 10rem;
 }
 
-.about-cta h2 {
+.cta-box h2 {
+  font-size: 3rem;
   margin-bottom: 1rem;
 }
 
-.about-cta p {
+.cta-box p {
+  color: var(--grey);
   margin-bottom: 3rem;
-  color: #888;
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+.cta-input-group {
+  display: flex;
+  max-width: 500px;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+.cta-input-group input {
+  flex: 1;
+  background: #000;
+  border: 1px solid #333;
+  color: #fff;
+  padding: 1rem;
+  font-weight: 700;
+}
+
+.cta-input-group button {
+  padding: 0 3rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .manifesto-grid, .culture-content {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+  
+  .manifesto-visual {
+    order: -1;
+  }
+  
+  .pillars-grid {
+    grid-template-columns: 1fr;
+    gap: 5rem;
+  }
 }
 
 @media (max-width: 768px) {
-  .about-grid {
-    grid-template-columns: 1fr;
+  .cta-box {
+    padding: 3rem 1.5rem;
   }
   
-  .about-stats {
-    grid-template-columns: 1fr;
-    text-align: center;
+  .cta-input-group {
+    flex-direction: column;
   }
   
-  .about-hero h1 {
+  .lead-text {
+    font-size: 1.5rem;
+  }
+  
+  .hero-content h1 {
     font-size: 3.5rem;
   }
 }

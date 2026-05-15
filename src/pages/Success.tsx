@@ -1,11 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface SuccessProps {
-  onReturn: () => void;
   trackingNumber: string;
 }
 
-const Success: React.FC<SuccessProps> = ({ onReturn, trackingNumber }) => {
+const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
   return (
     <div className="container" style={{ 
       padding: '4rem 1rem', 
@@ -44,7 +44,7 @@ const Success: React.FC<SuccessProps> = ({ onReturn, trackingNumber }) => {
         lineHeight: 1.6
       }}>
         YOUR DATA HAS BEEN TRANSMITTED THROUGH OUR SECURE PROTOCOLS. 
-        THE ARCHIVE IS PREPARING YOUR ELITE KITS FOR DEPLOYMENT. 
+        OUR TEAM IS PREPARING YOUR ELITE KITS FOR DEPLOYMENT. 
         EXPECT ARRIVAL AT YOUR COORDINATES WITHIN 2-3 BUSINESS DAYS.
       </p>
       
@@ -60,7 +60,7 @@ const Success: React.FC<SuccessProps> = ({ onReturn, trackingNumber }) => {
         <p style={{ fontSize: '0.8rem', color: '#888' }}>TRACKING NUMBER: #OFF-{trackingNumber}</p>
       </div>
 
-      <button className="btn-primary" onClick={onReturn}>RETURN TO ARCHIVE</button>
+      <Link to="/" className="btn-primary">RETURN TO SHOP</Link>
 
       <style>{`
         @keyframes pulse {

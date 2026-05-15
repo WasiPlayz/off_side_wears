@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types';
 import './Shop.css';
 
 interface ShopProps {
   products: Product[];
-  onProductClick: (product: Product) => void;
 }
 
-const Shop: React.FC<ShopProps> = ({ products, onProductClick }) => {
+const Shop: React.FC<ShopProps> = ({ products }) => {
   const [activeCategory, setActiveCategory] = useState('ALL');
+  const navigate = useNavigate();
 
   const filteredProducts = activeCategory === 'ALL' 
     ? products 
@@ -17,7 +18,7 @@ const Shop: React.FC<ShopProps> = ({ products, onProductClick }) => {
   return (
     <div className="shop-page container">
       <section className="shop-header">
-        <h1 className="glitch-text">JERSEY <br /> <span className="highlight">ARCHIVE</span></h1>
+        <h1 className="glitch-text">JERSEY <br /> <span className="highlight">COLLECTION</span></h1>
         <div className="category-filter">
           {['ALL', 'PLAYER EDITION', 'FAN EDITION'].map(cat => (
             <button 
@@ -33,11 +34,26 @@ const Shop: React.FC<ShopProps> = ({ products, onProductClick }) => {
 
       <div className="product-grid">
         {filteredProducts.map(product => (
-          <div key={product.id} className="product-card" onClick={() => onProductClick(product)}>
+          <div key={product.id} className="product-card" onClick={() => navigate(`/product/${product.id}`)}>
             <div className="product-img-container">
-              <img src={product.img} alt={product.name} loading="lazy" />
+              <img src={product.img} alt={product.name} loading="lazy" style={{ opacity: product.inStock === false ? 0.5 : 1 }} />
+              {product.inStock === false && (
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '1rem', 
+                  right: '1rem', 
+                  background: '#ef4444', 
+                  color: '#fff', 
+                  padding: '0.2rem 0.6rem', 
+                  fontSize: '0.7rem', 
+                  fontWeight: 900,
+                  zIndex: 2
+                }}>
+                  OUT OF STOCK
+                </div>
+              )}
               <div className="product-overlay">
-                <button className="btn-primary mini">VIEW DETAILS</button>
+                <button className="btn-primary mini">{product.inStock === false ? 'VIEW DETAILS' : 'BUY NOW'}</button>
               </div>
             </div>
             <div className="product-info">

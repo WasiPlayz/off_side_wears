@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import emailjs from '@emailjs/browser';
 import { db } from '../firebase';
@@ -20,6 +21,7 @@ interface CheckoutProps {
 }
 
 const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -39,21 +41,6 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
 
   const availableThanas = thanas[district] || ["Sadar", "Other"];
 
-  const convertBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-      fileReader.onload = () => {
-        const result = fileReader.result as string;
-        const base64Data = result.split(',')[1];
-        resolve(base64Data);
-      };
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
-  };
-
   const uploadImageToImgBB = async (imageFile: File) => {
     const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
     if (!apiKey) {
@@ -62,9 +49,8 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
     }
 
     try {
-      const base64Image = await convertBase64(imageFile);
       const formData = new FormData();
-      formData.append('image', base64Image);
+      formData.append('image', imageFile);
       
       const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
         method: 'POST',
@@ -149,14 +135,12 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
 
         if (serviceId && templateId && publicKey) {
           const itemsHtml = items.map(item => {
-            // Fix 1: Email clients (like Gmail) block local 'localhost' URLs. Force a live URL if testing locally.
             let imageUrl = item.img.startsWith('/') 
               ? (window.location.origin.includes('localhost') ? 'https://off-side-wears.vercel.app' : window.location.origin) + item.img 
               : item.img;
             
-            // Fix 2: Gmail blocks .webp images entirely. Use a safe JPEG placeholder if it's a webp image.
             if (imageUrl.endsWith('.webp')) {
-              imageUrl = 'https://images.unsplash.com/photo-1543351611-58f69d7c1781?auto=format&fit=crop&q=80&w=200'; // Safe generic jersey fallback
+              imageUrl = 'https://images.unsplash.com/photo-1543351611-58f69d7c1781?auto=format&fit=crop&q=80&w=200';
             }
 
             return `
@@ -189,8 +173,6 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
           };
 
           await emailjs.send(serviceId, templateId, emailParams, publicKey);
-        } else {
-          console.warn("EmailJS keys missing. Email not sent.");
         }
       } catch (emailError) {
         console.error("Failed to send confirmation email", emailError);
@@ -198,6 +180,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
 
       setIsSubmitting(false);
       onComplete(generatedTrackingNumber);
+      navigate('/success');
 
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -217,11 +200,11 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
             <div className="form-row">
               <div className="form-group">
                 <label>FULL NAME</label>
-                <input type="text" placeholder="ENTER NAME" value={fullName} onChange={e => setFullName(e.target.value)} required onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("You have to fill up this box")} onInput={(e) => (e.target as HTMLInputElement).setCustomValidity("")} />
+                <input type="text" placeholder="ENTER NAME" value={fullName} onChange={e => setFullName(e.target.value)} required />
               </div>
               <div className="form-group">
                 <label>EMAIL ADDRESS</label>
-                <input type="email" placeholder="ADDRESS@DOMAIN.COM" value={email} onChange={e => setEmail(e.target.value)} required onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("You have to fill up this box")} onInput={(e) => (e.target as HTMLInputElement).setCustomValidity("")} />
+                <input type="email" placeholder="ADDRESS@DOMAIN.COM" value={email} onChange={e => setEmail(e.target.value)} required />
               </div>
             </div>
 
@@ -234,8 +217,6 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
                   placeholder="1XXXXXXXXX" 
                   value={phone}
                   required
-                  onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("You have to fill up this box")} 
-                  onInput={(e) => (e.target as HTMLInputElement).setCustomValidity("")}
                   onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 />
               </div>
@@ -244,14 +225,14 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
             <div className="form-row">
               <div className="form-group">
                 <label>DISTRICT</label>
-                <select value={district} required onInvalid={(e) => (e.target as HTMLSelectElement).setCustomValidity("You have to fill up this box")} onInput={(e) => (e.target as HTMLSelectElement).setCustomValidity("")} onChange={(e) => { setDistrict(e.target.value); setThana(''); }}>
+                <select value={district} required onChange={(e) => { setDistrict(e.target.value); setThana(''); }}>
                   <option value="">SELECT DISTRICT</option>
                   {districts.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
               <div className="form-group">
                 <label>THANA / UPAZILA</label>
-                <select value={thana} required onInvalid={(e) => (e.target as HTMLSelectElement).setCustomValidity("You have to fill up this box")} onInput={(e) => (e.target as HTMLSelectElement).setCustomValidity("")} onChange={(e) => setThana(e.target.value)} disabled={!district}>
+                <select value={thana} required onChange={(e) => setThana(e.target.value)} disabled={!district}>
                   <option value="">SELECT THANA</option>
                   {availableThanas.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
@@ -260,7 +241,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
 
             <div className="form-group">
               <label>STREET ADDRESS</label>
-              <input type="text" placeholder="HOUSE, ROAD, AREA" value={address} onChange={e => setAddress(e.target.value)} required onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("You have to fill up this box")} onInput={(e) => (e.target as HTMLInputElement).setCustomValidity("")} />
+              <input type="text" placeholder="HOUSE, ROAD, AREA" value={address} onChange={e => setAddress(e.target.value)} required />
             </div>
           </div>
 

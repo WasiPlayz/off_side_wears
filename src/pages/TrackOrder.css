@@ -3,6 +3,10 @@
   padding: 4rem 1rem;
 }
 
+.track-form input {
+  transition: all 0.3s ease;
+}
+
 .track-form input:focus {
   outline: none;
   border-color: var(--accent-color);
@@ -12,6 +16,53 @@
 .track-form button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* Light Theme Specific Visibility Fixes */
+[data-theme='light'] .track-search-container p {
+  color: #475569 !important; /* Darker slate for readability */
+}
+
+[data-theme='light'] .track-form input {
+  background: #fff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .track-results {
+  background: #fff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='light'] .track-results h3 {
+  color: #0f172a !important;
+  border-bottom-color: #f1f5f9 !important;
+}
+
+[data-theme='light'] .track-results h4 {
+  color: #64748b !important; /* Muted slate for headers */
+}
+
+[data-theme='light'] .track-results p {
+  color: #334155 !important;
+}
+
+[data-theme='light'] .track-results .status-box {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme='light'] .track-results .status-box p {
+  color: #64748b !important;
+}
+
+[data-theme='light'] .track-results .items-secured {
+  border-top-color: #f1f5f9 !important;
+}
+
+[data-theme='light'] .track-results .item-row {
+  color: #1e293b !important;
 }
 
 @media (max-width: 600px) {
