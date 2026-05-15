@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toPng } from 'html-to-image';
+import type { Order } from '../types';
 import './Success.css';
 
 interface SuccessProps {
@@ -9,41 +10,51 @@ interface SuccessProps {
 
 const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
   const receiptRef = useRef<HTMLDivElement>(null);
-  const [isDownloading, setIsSubmitting] = useState(false);
-  const [orderInfo, setOrderInfo] = useState<any>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [orderInfo, setOrderInfo] = useState<Order | null>(null);
 
-  // Load order data from sessionStorage (saved during checkout)
   useEffect(() => {
     const savedOrder = sessionStorage.getItem('lastOrderDetails');
     if (savedOrder) {
-      setOrderInfo(JSON.parse(savedOrder));
+      try {
+        setOrderInfo(JSON.parse(savedOrder) as Order);
+      } catch (err) {
+        console.error('Failed to parse order info', err);
+      }
     }
   }, []);
 
   const handleDownloadReceipt = async () => {
-    if (receiptRef.current === null) return;
+    if (receiptRef.current === null) {
+      console.error("Receipt reference is null");
+      return;
+    }
     
-    setIsSubmitting(true);
+    setIsDownloading(true);
+    
+    // Force a small delay to ensure images are loaded
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     try {
+      // Create a cloned node for rendering to avoid issues with absolute positioning
       const dataUrl = await toPng(receiptRef.current, { 
         cacheBust: true,
         backgroundColor: '#0a0518',
-        style: {
-          padding: '40px',
-          display: 'flex',
-          flexDirection: 'column'
-        }
+        pixelRatio: 2, // Higher quality
+        skipAutoScale: true,
       });
       
       const link = document.createElement('a');
-      link.download = `OFF_SIDE_RECEIPT_${trackingNumber}.png`;
+      link.download = `OFF_SIDE_RECEIPT_${trackingNumber || 'ORDER'}.png`;
       link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Failed to generate receipt', err);
-      alert('FAILED TO GENERATE RECEIPT. PLEASE TAKE A SCREENSHOT INSTEAD.');
+      alert('SYSTEM ERROR: RECEIPT GENERATION FAILED. PLEASE TAKE A SCREENSHOT FOR YOUR RECORDS.');
     } finally {
-      setIsSubmitting(false);
+      setIsDownloading(false);
     }
   };
 
@@ -80,22 +91,22 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
           <Link to="/" className="btn-secondary">RETURN TO SHOP</Link>
         </div>
 
-        {/* Hidden Receipt Template for html-to-image */}
-        <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-          <div ref={receiptRef} className="receipt-template">
+        {/* Improved Receipt Template - rendered off-screen but visible to the tool */}
+        <div style={{ position: 'fixed', left: '-5000px', top: '0', zIndex: -1 }}>
+          <div ref={receiptRef} className="receipt-template" style={{ display: 'block' }}>
             <div className="receipt-header">
               <div className="receipt-logo">OFF_SIDE</div>
-              <div className="receipt-status">RECEIPT</div>
+              <div className="receipt-status">OFFICIAL RECEIPT</div>
             </div>
             
             <div className="receipt-meta">
               <div className="meta-item">
                 <span>TRACKING ID:</span>
-                <strong>#OFF-{trackingNumber}</strong>
+                <strong style={{ color: '#fff' }}>#OFF-{trackingNumber || 'PENDING'}</strong>
               </div>
               <div className="meta-item">
                 <span>DATE:</span>
-                <strong>{new Date().toLocaleDateString()}</strong>
+                <strong style={{ color: '#fff' }}>{new Date().toLocaleDateString()}</strong>
               </div>
             </div>
 
@@ -119,14 +130,14 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
               </div>
               <div className="receipt-item-row">
                 <span>TRANSACTION ID:</span>
-                <span style={{ color: 'var(--accent-color)' }}>{orderInfo?.paymentInfo?.transactionId || 'N/A'}</span>
+                <span style={{ color: '#3b82f6' }}>{orderInfo?.paymentInfo?.transactionId || 'N/A'}</span>
               </div>
             </div>
 
             <div className="receipt-section">
               <h4>SECURED ITEMS</h4>
               <div className="receipt-items">
-                {orderInfo?.items?.map((item: any, idx: number) => (
+                {orderInfo?.items?.map((item, idx) => (
                   <div key={idx} className="receipt-item-row">
                     <span>{item.quantity}x {item.name} ({item.size})</span>
                     <span>{item.price} BDT</span>
@@ -144,7 +155,7 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
                 <span>SHIPPING:</span>
                 <span>{orderInfo?.orderSummary?.shipping || 0} BDT</span>
               </div>
-              <div className="total-row" style={{ color: 'var(--accent-color)', marginTop: '1rem', borderTop: '1px solid #222', paddingTop: '1rem' }}>
+              <div className="total-row" style={{ color: '#3b82f6', marginTop: '1rem', borderTop: '1px solid #1a1a1a', paddingTop: '1rem' }}>
                 <span>AMOUNT PAID (NOW):</span>
                 <span>{orderInfo?.orderSummary?.amountPaid || 0} BDT</span>
               </div>
@@ -152,13 +163,13 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
                 <span>BALANCE DUE (ON DELIVERY):</span>
                 <span>{orderInfo?.orderSummary?.balanceDue || 0} BDT</span>
               </div>
-              <div className="total-row grand">
+              <div className="total-row grand" style={{ borderTop: '2px solid #3b82f6', paddingTop: '1rem' }}>
                 <span>TOTAL ORDER VALUE:</span>
-                <span>{orderInfo?.orderSummary?.total || 0} BDT</span>
+                <span style={{ color: '#3b82f6' }}>{orderInfo?.orderSummary?.total || 0} BDT</span>
               </div>
             </div>
             
-            <div className="receipt-watermark">AUTHENTIC 1:1 GRADE PROTOCOL</div>
+            <div className="receipt-watermark" style={{ opacity: 0.1, marginTop: '2rem' }}>AUTHENTIC 1:1 GRADE PROTOCOL // OFF_SIDE_WEARS</div>
           </div>
         </div>
       </div>

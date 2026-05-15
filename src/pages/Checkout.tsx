@@ -4,24 +4,17 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import emailjs from '@emailjs/browser';
 import { db } from '../firebase';
 import { districts, thanas } from '../data/bd-data';
+import { useCart } from '../context/CartContext';
 import './Checkout.css';
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: string;
-  img: string;
-  quantity: number;
-  size?: string;
-}
-
 interface CheckoutProps {
-  items: CartItem[];
   onComplete: (trackingNumber: string) => void;
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
+const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
   const navigate = useNavigate();
+  const { cart, clearCart } = useCart();
+  
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -35,11 +28,10 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const subtotal = items.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
+  const subtotal = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
   const shipping = district.toLowerCase() === 'dhaka' ? 60 : 120;
   const total = subtotal + shipping;
   
-  // New logic: If COD, only shipping is paid now, subtotal is due. If Online, everything is paid now.
   const amountPaid = paymentMethod === 'cod' ? shipping : (paymentMethod === 'online' ? total : 0);
   const balanceDue = paymentMethod === 'cod' ? subtotal : 0;
 
@@ -75,6 +67,8 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
 
   const handleCompleteOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cart.length === 0) return;
+    
     if (!paymentMethod) {
       alert("Please select a payment method.");
       return;
@@ -116,7 +110,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
           amountPaid,
           balanceDue
         },
-        items: items.map(item => ({
+        items: cart.map(item => ({
           id: item.id,
           name: item.name,
           price: item.price,
@@ -136,7 +130,6 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
 
       await addDoc(collection(db, 'orders'), orderData);
       
-      // Save for receipt generation
       sessionStorage.setItem('lastOrderDetails', JSON.stringify(orderData));
       
       try {
@@ -145,7 +138,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
         const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
         if (serviceId && templateId && publicKey) {
-          const itemsHtml = items.map(item => {
+          const itemsHtml = cart.map(item => {
             let imageUrl = item.img.startsWith('/') 
               ? (window.location.origin.includes('localhost') ? 'https://off-side-wears.vercel.app' : window.location.origin) + item.img 
               : item.img;
@@ -175,13 +168,16 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
 
           const emailParams = {
             email: email,
+            customer_name: fullName,
             order_id: generatedTrackingNumber,
             shipping_cost: shipping,
             tax_cost: 0,
+            subtotal: subtotal,
             total_cost: total,
             amount_paid: amountPaid,
             balance_due: balanceDue,
-            payment_method: paymentMethod === 'cod' ? 'Cash on Delivery (Product Price Due)' : 'Online Payment (Full Paid)',
+            payment_method: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment',
+            payment_status: paymentMethod === 'cod' ? `Partial (Delivery Charge Paid: ${amountPaid} BDT)` : 'Fully Paid',
             order_items_html: itemsHtml,
             website_link: window.location.origin
           };
@@ -192,6 +188,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
         console.error("Failed to send confirmation email", emailError);
       }
 
+      clearCart();
       setIsSubmitting(false);
       onComplete(generatedTrackingNumber);
       navigate('/success');
@@ -367,7 +364,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
           <button 
             type="submit"
             className="btn-primary full-width" 
-            disabled={items.length === 0 || isSubmitting}
+            disabled={cart.length === 0 || isSubmitting}
             style={{ marginTop: '2rem', height: '60px', fontSize: '1rem', letterSpacing: '2px' }}
           >
             {isSubmitting ? 'TRANSMITTING ORDER...' : 'COMPLETE ORDER PROTOCOL'}
@@ -377,8 +374,8 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onComplete }) => {
         <div className="order-summary">
           <h3>ORDER SUMMARY</h3>
           <div className="summary-items">
-            {items.map((item, idx) => (
-              <div key={`${item.id}-${idx}`} className="summary-item">
+            {cart.map((item, idx) => (
+              <div key={`${item.id}-${item.size}-${idx}`} className="summary-item">
                 <div className="summary-item-info">
                   <span className="summary-name">{item.name}</span>
                   <span className="summary-meta">SIZE: {item.size || 'N/A'} • QTY: {item.quantity}</span>

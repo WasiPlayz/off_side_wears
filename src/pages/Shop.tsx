@@ -13,6 +13,7 @@ const Shop: React.FC<ShopProps> = ({ products }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(true);
   }, []);
 

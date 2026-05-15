@@ -1,68 +1,60 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 import './Cart.css';
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: string;
-  img: string;
-  quantity: number;
-  size?: string;
-}
-
-interface CartProps {
-  isOpen: boolean;
-  onClose: () => void;
-  items: CartItem[];
-  onRemove: (id: number) => void;
-}
-
-const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onRemove }) => {
+const Cart: React.FC = () => {
   const navigate = useNavigate();
-  const total = items.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity } = useCart();
+  
+  const total = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
 
   const handleGoShopping = () => {
     navigate('/shop');
-    onClose();
+    setIsCartOpen(false);
   };
 
   const handleCheckout = () => {
     navigate('/checkout');
-    onClose();
+    setIsCartOpen(false);
   };
 
   return (
     <>
-      <div className={`cart-overlay ${isOpen ? 'active' : ''}`} onClick={onClose}></div>
-      <div className={`cart-drawer ${isOpen ? 'active' : ''}`}>
+      <div className={`cart-overlay ${isCartOpen ? 'active' : ''}`} onClick={() => setIsCartOpen(false)}></div>
+      <div className={`cart-drawer ${isCartOpen ? 'active' : ''}`}>
         <div className="cart-header">
           <h2>YOUR CART</h2>
-          <button className="close-cart" onClick={onClose}>CLOSE</button>
+          <button className="close-cart" onClick={() => setIsCartOpen(false)}>CLOSE</button>
         </div>
 
         <div className="cart-items">
-          {items.length === 0 ? (
+          {cart.length === 0 ? (
             <div className="empty-cart">
               <p>THE CART IS EMPTY.</p>
               <button className="btn-primary" onClick={handleGoShopping}>GO SHOPPING</button>
             </div>
           ) : (
-            items.map((item, idx) => (
-              <div key={`${item.id}-${idx}`} className="cart-item">
+            cart.map((item, idx) => (
+              <div key={`${item.id}-${item.size}-${idx}`} className="cart-item">
                 <img src={item.img} alt={item.name} />
                 <div className="item-details">
                   <h4>{item.name}</h4>
                   <p className="item-meta">SIZE: {item.size || 'N/A'}</p>
+                  <div className="quantity-controls">
+                    <button onClick={() => updateQuantity(item.id, item.size, -1)}>-</button>
+                    <span>{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.id, item.size, 1)}>+</button>
+                  </div>
                   <p className="item-price">{item.price} BDT x {item.quantity}</p>
-                  <button className="remove-item" onClick={() => onRemove(item.id)}>REMOVE</button>
+                  <button className="remove-item" onClick={() => removeFromCart(item.id, item.size)}>REMOVE</button>
                 </div>
               </div>
             ))
           )}
         </div>
 
-        {items.length > 0 && (
+        {cart.length > 0 && (
           <div className="cart-footer">
             <div className="cart-total">
               <span>TOTAL</span>

@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import './Navbar.css';
 
-interface NavbarProps {
-  cartCount: number;
-  onToggleCart: () => void;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ cartCount, onToggleCart }) => {
+const Navbar: React.FC = () => {
   const [theme, setTheme] = useState('dark');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { cartCount, toggleCart } = useCart();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -41,7 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onToggleCart }) => {
           <button onClick={toggleTheme} className="theme-toggle desktop-only">
             {theme === 'dark' ? 'LIGHT' : 'DARK'}
           </button>
-          <button className="cart-btn" onClick={onToggleCart}>CART ({cartCount})</button>
+          <button className="cart-btn" onClick={toggleCart}>CART ({cartCount})</button>
           
           <button 
             className={`mobile-menu-toggle ${isMobileMenuOpen ? 'active' : ''}`} 

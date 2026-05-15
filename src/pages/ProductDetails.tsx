@@ -1,26 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs, addDoc, serverTimestamp, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
-import type { Product } from '../types';
+import type { Product, Review, Order } from '../types';
+import { useCart } from '../context/CartContext';
 import './ProductDetails.css';
-
-interface Review {
-  id: string;
-  userName: string;
-  rating: number;
-  comment: string;
-  createdAt: Timestamp;
-}
 
 interface ProductDetailsProps {
   products: Product[];
-  onAddToCart: (product: Product, size: string) => void;
 }
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ products, onAddToCart }) => {
+const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [activeImg, setActiveImg] = useState<string>('');
@@ -89,7 +83,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, onAddToCart }
       alert('Please select a size first.');
       return;
     }
-    onAddToCart(product, selectedSize);
+    addToCart(product, selectedSize);
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -115,8 +109,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, onAddToCart }
         return;
       }
 
-      const orderData = querySnapshot.docs[0].data();
-      const productInOrder = orderData.items.some((item: any) => item.id === product.id);
+      const orderData = querySnapshot.docs[0].data() as Order;
+      const productInOrder = orderData.items.some((item: { id: number }) => item.id === product.id);
 
       if (!productInOrder) {
         alert("This product was not found in the order provided.");
