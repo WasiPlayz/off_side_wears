@@ -66,7 +66,7 @@
 }
 
 [data-theme='light'] .theme-toggle {
-  color: var(--accent-color);
+  color: var(--text-color);
   border-color: var(--accent-color);
 }
 
@@ -79,6 +79,7 @@
 
 [data-theme='light'] .theme-toggle:hover {
   background: var(--accent-color);
+  color: var(--white);
   box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
 }
 

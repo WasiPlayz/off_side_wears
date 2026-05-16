@@ -77,7 +77,7 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
         <h1 className="glitch-text">ORDER <br /><span className="highlight">SECURED</span></h1>
         
         <p className="success-message">
-          YOUR DATA HAS BEEN TRANSMITTED TO THE ARCHIVE. 
+          YOUR DATA HAS BEEN TRANSMITTED TO OUR SYSTEM. 
           THE ELITE KITS ARE BEING PREPARED FOR DEPLOYMENT.
         </p>
 

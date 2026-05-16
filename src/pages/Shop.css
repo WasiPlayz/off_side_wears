@@ -65,26 +65,28 @@
   font-size: 0.75rem;
   letter-spacing: 2px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   border-radius: 2px;
 }
 
 [data-theme='light'] .filter-btn {
-  color: #475569;
+  color: #1e293b; /* Darker text for light mode */
 }
 
 .filter-btn:hover {
   color: var(--white);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 [data-theme='light'] .filter-btn:hover {
   color: var(--accent-color);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .filter-btn.active {
-  background: var(--accent-color);
-  color: var(--white);
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  background: var(--accent-color) !important;
+  color: var(--white) !important;
+  box-shadow: none; /* Removed the glow/box-shadow */
 }
 
 @media (max-width: 768px) {
@@ -102,10 +104,11 @@
   }
   
   .filter-btn {
-    padding: 0.6rem 1.5rem;
+    padding: 0.6rem 1.2rem;
     font-size: 0.65rem;
     white-space: nowrap;
     flex: 1;
+    min-width: fit-content;
   }
 }
 

@@ -379,7 +379,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
           {loadingReviews ? (
             <p>SYNCING REVIEWS...</p>
           ) : reviews.length === 0 ? (
-            <p style={{ color: '#666', fontStyle: 'italic' }}>NO REVIEWS IN THE ARCHIVE YET. BE THE FIRST TO DROP ONE.</p>
+            <p style={{ color: '#666', fontStyle: 'italic' }}>NO REVIEWS FOR THIS PRODUCT YET. BE THE FIRST TO DROP ONE.</p>
           ) : (
             reviews.map(review => (
               <div key={review.id} className="review-card" style={{ borderLeft: '3px solid var(--accent-color)', paddingLeft: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid #111' }}>

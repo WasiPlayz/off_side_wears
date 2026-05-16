@@ -57,7 +57,7 @@ const App: React.FC = () => {
                 <section className="featured-drops">
                   <div className="container">
                     <div className="section-header">
-                      <div className="section-badge">CURRENT ARCHIVE</div>
+                      <div className="section-badge">LATEST COLLECTION</div>
                       <h2 className="section-title">ELITE <span className="highlight">DROPS</span></h2>
                     </div>
                     <div className="drops-grid">

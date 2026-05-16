@@ -2,6 +2,11 @@
   background-color: var(--dark-grey);
   padding: 5rem 0 2rem;
   margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='light'] .footer {
+  border-top: 1px solid #e2e8f0;
 }
 
 .footer-content {
@@ -17,7 +22,8 @@
 }
 
 .footer-brand p {
-  color: #888;
+  color: var(--text-color);
+  opacity: 0.6;
   font-weight: 700;
   max-width: 200px;
 }
@@ -30,7 +36,7 @@
 .link-group h4 {
   font-size: 0.8rem;
   margin-bottom: 1.5rem;
-  color: var(--white);
+  color: var(--text-color);
 }
 
 .link-group ul li {
@@ -39,12 +45,14 @@
 
 .link-group ul li a {
   font-size: 0.8rem;
-  color: #888;
+  color: var(--text-color);
+  opacity: 0.6;
   font-weight: 600;
 }
 
 .link-group ul li a:hover {
   color: var(--accent-color);
+  opacity: 1;
 }
 
 .footer-link-btn {
@@ -53,7 +61,8 @@
   padding: 0;
   font: inherit;
   font-size: 0.8rem;
-  color: #888;
+  color: var(--text-color);
+  opacity: 0.6;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -62,17 +71,23 @@
 
 .footer-link-btn:hover {
   color: var(--accent-color);
+  opacity: 1;
 }
 
 .footer-bottom {
   text-align: center;
   padding-top: 2rem;
-  border-top: 1px solid #333;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='light'] .footer-bottom {
+  border-top: 1px solid #e2e8f0;
 }
 
 .footer-bottom p {
   font-size: 0.7rem;
-  color: #555;
+  color: var(--text-color);
+  opacity: 0.4;
   font-weight: 700;
 }
 
