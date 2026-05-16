@@ -61,9 +61,13 @@ const App: React.FC = () => {
                       <h2 className="section-title">ELITE <span className="highlight">DROPS</span></h2>
                     </div>
                     <div className="drops-grid">
-                      {globalProducts.slice(0, 3).map((product) => (
-                        <ProductCard key={product.id} product={product} />
-                      ))}
+                      {globalProducts
+                        .filter(product => product.inStock !== false)
+                        .sort((a, b) => b.id - a.id)
+                        .slice(0, 3)
+                        .map((product) => (
+                          <ProductCard key={product.id} product={product} />
+                        ))}
                     </div>
                   </div>
                 </section>

@@ -9,14 +9,18 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
   const isInStock = product.inStock !== false;
+  const displayImg = product.img || '/offside_wears.jpeg';
   
   return (
     <div className="product-card-home" onClick={() => navigate(`/product/${product.id}`)}>
       <img 
-        src={product.img} 
+        src={displayImg} 
         alt={product.name} 
         loading="lazy"
         style={{ opacity: isInStock ? '0.8' : '0.4' }}
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = '/offside_wears.jpeg';
+        }}
       />
       {!isInStock && (
         <div style={{ 

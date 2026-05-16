@@ -74,7 +74,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
 
   const isPlayerEdition = product.category.toUpperCase().includes('PLAYER');
   const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
-  const gallery = product.images || [product.img];
+  const gallery = (product.images && product.images.length > 0) ? product.images : [product.img || '/offside_wears.jpeg'];
   const isInStock = product.inStock !== false;
 
   const handleNextImg = (e: React.MouseEvent) => {
@@ -170,7 +170,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
                 </>
               )}
               <div className="main-image-viewport" onClick={() => setIsZoomed(true)}>
-                <img src={activeImg} alt={product.name} className="main-image" />
+                <img 
+                  src={activeImg || '/offside_wears.jpeg'} 
+                  alt={product.name} 
+                  className="main-image" 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/offside_wears.jpeg';
+                  }}
+                />
               </div>
               <div className="zoom-hint">CLICK TO ZOOM</div>
               {gallery.length > 1 && (
@@ -192,7 +199,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
                   className={`thumbnail ${activeImg === img ? 'active' : ''}`}
                   onClick={() => setActiveImg(img)}
                 >
-                  <img src={img} alt={`${product.name} view ${idx + 1}`} />
+                  <img 
+                    src={img || '/offside_wears.jpeg'} 
+                    alt={`${product.name} view ${idx + 1}`} 
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/offside_wears.jpeg';
+                    }}
+                  />
                 </div>
               ))}
             </div>
@@ -432,7 +445,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
       {isZoomed && (
         <div className="zoom-overlay" onClick={() => setIsZoomed(false)}>
           <div className="zoom-modal">
-            <img src={activeImg} alt={product.name} />
+            <img 
+              src={activeImg || '/offside_wears.jpeg'} 
+              alt={product.name} 
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/offside_wears.jpeg';
+              }}
+            />
             <button className="close-zoom">CLOSE</button>
           </div>
         </div>

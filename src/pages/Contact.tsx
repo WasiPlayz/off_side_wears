@@ -58,12 +58,11 @@ const Contact: React.FC = () => {
           </div>
           <div className="info-block">
             <h3>EMAIL SUPPORT</h3>
-            <p>wasseyhacker@gmail.com</p>
+            <p>offsidewears.shop@gmail.com</p>
           </div>
           <div className="info-block">
             <h3>LOCATION</h3>
-            <p>Trishal, Mymensingh</p>
-            <p>Bangladesh</p>
+            <p>Dhaka, Bangladesh</p>
           </div>
         </div>
 
