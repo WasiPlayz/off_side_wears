@@ -7,7 +7,6 @@ const About: React.FC = () => {
       <section className="about-hero">
         <div className="container">
           <div className="hero-content">
-            <span className="eyebrow">THE ARCHIVE PROTOCOL</span>
             <h1 className="glitch-text">BEYOND THE <br /><span className="highlight">90 MINUTES</span></h1>
             <p className="subtitle">Defining the intersection of elite performance and street culture.</p>
           </div>
