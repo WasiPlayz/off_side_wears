@@ -69,6 +69,10 @@
   border-radius: 2px;
 }
 
+[data-theme='light'] .filter-btn {
+  color: #475569;
+}
+
 .filter-btn:hover {
   color: var(--white);
 }
@@ -89,6 +93,12 @@
     display: flex;
     overflow-x: auto;
     padding: 0.3rem;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+  }
+  
+  .category-filter::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
   }
   
   .filter-btn {

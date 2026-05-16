@@ -65,11 +65,21 @@
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+[data-theme='light'] .theme-toggle {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
 .theme-toggle:hover {
   background: var(--secondary-accent);
   color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4);
+}
+
+[data-theme='light'] .theme-toggle:hover {
+  background: var(--accent-color);
+  box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
 }
 
 .cart-btn {
@@ -113,6 +123,10 @@
   height: 2px;
   background-color: var(--white);
   transition: all 0.3s ease;
+}
+
+[data-theme='light'] .mobile-menu-toggle span {
+  background-color: var(--text-color);
 }
 
 @media (max-width: 992px) {

@@ -8,7 +8,7 @@ const Hero: React.FC = () => {
     <section className="hero">
       <div className="container hero-content">
         <div className="hero-main">
-          <div className="hero-badge">OFFICIAL 1:1 ELITE PROTOCOL</div>
+          <div className="hero-badge">PREMIUM GRADE WEARS</div>
           <h1 className="hero-title">
             WEAR <span className="highlight">YOUR GAME</span>
           </h1>

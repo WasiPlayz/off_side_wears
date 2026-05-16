@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types';
 import './Shop.css';
@@ -9,22 +9,38 @@ interface ShopProps {
 
 const Shop: React.FC<ShopProps> = ({ products }) => {
   const [activeCategory, setActiveCategory] = useState('ALL');
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsLoaded(true);
-  }, []);
+  const sortedAndFilteredProducts = useMemo(() => {
+    // 1. Filter by category
+    const filtered = activeCategory === 'ALL' 
+      ? products 
+      : products.filter(p => p.category === activeCategory);
 
-  const filteredProducts = activeCategory === 'ALL' 
-    ? products 
-    : products.filter(p => p.category === activeCategory);
+    // 2. Sort: Player Edition first, then stock status (In stock > Out of stock)
+    return [...filtered].sort((a, b) => {
+      // Primary: Stock Status (In Stock always comes before Out of Stock)
+      const stockA = a.inStock === false ? 0 : 1;
+      const stockB = b.inStock === false ? 0 : 1;
+      
+      if (stockA !== stockB) return stockB - stockA;
+
+      // Secondary: Category (Player Edition/Premium first among in-stock items)
+      if (stockA === 1) { // Both are in stock
+        const isPlayerA = a.category.toUpperCase().includes('PLAYER') ? 1 : 0;
+        const isPlayerB = b.category.toUpperCase().includes('PLAYER') ? 1 : 0;
+        if (isPlayerA !== isPlayerB) return isPlayerB - isPlayerA;
+      }
+
+      return 0; // Maintain original relative order for items with same priority
+    });
+  }, [products, activeCategory]);
 
   return (
     <div className={`shop-page container ${isLoaded ? 'loaded' : ''}`}>
       <section className="shop-header">
-        <span className="subtitle">ELITE PITCH WEAR</span>
+        <span className="subtitle">PREMIUM GRADE WEARS</span>
         <h1 className="glitch-text">JERSEY <br /> <span className="highlight">COLLECTION</span></h1>
         
         <div className="category-filter">
@@ -41,7 +57,7 @@ const Shop: React.FC<ShopProps> = ({ products }) => {
       </section>
 
       <div className="product-grid">
-        {filteredProducts.map((product, index) => (
+        {sortedAndFilteredProducts.map((product, index) => (
           <div 
             key={product.id} 
             className="product-card" 
