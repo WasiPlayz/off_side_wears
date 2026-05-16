@@ -77,6 +77,20 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
   const gallery = product.images || [product.img];
   const isInStock = product.inStock !== false;
 
+  const handleNextImg = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const currentIndex = gallery.indexOf(activeImg);
+    const nextIndex = (currentIndex + 1) % gallery.length;
+    setActiveImg(gallery[nextIndex]);
+  };
+
+  const handlePrevImg = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const currentIndex = gallery.indexOf(activeImg);
+    const prevIndex = (currentIndex - 1 + gallery.length) % gallery.length;
+    setActiveImg(gallery[prevIndex]);
+  };
+
   const handleAddToCart = () => {
     if (!isInStock) return;
     if (!selectedSize) {
@@ -148,9 +162,28 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
       <div className="details-grid">
         <div className="details-left">
           <div className="details-gallery">
-            <div className="main-image-container" onClick={() => setIsZoomed(true)}>
-              <img src={activeImg} alt={product.name} className="main-image" />
+            <div className="main-image-container">
+              {gallery.length > 1 && (
+                <>
+                  <button className="slider-arrow prev" onClick={handlePrevImg}>←</button>
+                  <button className="slider-arrow next" onClick={handleNextImg}>→</button>
+                </>
+              )}
+              <div className="main-image-viewport" onClick={() => setIsZoomed(true)}>
+                <img src={activeImg} alt={product.name} className="main-image" />
+              </div>
               <div className="zoom-hint">CLICK TO ZOOM</div>
+              {gallery.length > 1 && (
+                <div className="slider-dots">
+                  {gallery.map((_, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`dot ${gallery.indexOf(activeImg) === idx ? 'active' : ''}`}
+                      onClick={() => setActiveImg(gallery[idx])}
+                    ></div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="thumbnail-bar">
               {gallery.map((img, idx) => (
