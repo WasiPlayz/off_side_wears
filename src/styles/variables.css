@@ -29,6 +29,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent; /* Remove blue highlight on mobile tap */
 }
 
 body {
@@ -37,6 +38,21 @@ body {
   font-family: var(--font-main);
   overflow-x: hidden;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none; /* Prevent Android Chrome pull-to-refresh jank */
+}
+
+/* Mobile/Android Active Touch Feedback */
+button:active, a:active, .product-card:active, .size-btn:active {
+  transform: scale(0.96);
+  opacity: 0.8;
+  transition: transform 0.1s ease;
+}
+
+/* Prevent iOS Zoom on Inputs */
+input, textarea, select {
+  font-size: 16px !important;
 }
 
 h1, h2, h3, h4, h5, h6 {

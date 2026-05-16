@@ -13,15 +13,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   
   return (
     <div className="product-card-home" onClick={() => navigate(`/product/${product.id}`)}>
-      <img 
-        src={displayImg} 
-        alt={product.name} 
-        loading="lazy"
-        style={{ opacity: isInStock ? '0.8' : '0.4' }}
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = '/offside_wears.jpeg';
-        }}
-      />
+      <div className="card-image-wrapper" style={{ background: '#111', position: 'relative', width: '100%', height: '100%' }}>
+        <img 
+          src={displayImg} 
+          alt={product.name} 
+          loading="lazy"
+          fetchPriority="high"
+          style={{ 
+            opacity: isInStock ? '0.8' : '0.4',
+            transition: 'opacity 0.6s ease-in-out',
+          }}
+          onLoad={(e) => {
+            (e.target as HTMLImageElement).style.opacity = isInStock ? '0.8' : '0.4';
+          }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/offside_wears.jpeg';
+          }}
+        />
+      </div>
       {!isInStock && (
         <div style={{ 
           position: 'absolute', 

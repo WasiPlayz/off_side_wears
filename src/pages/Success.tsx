@@ -128,7 +128,7 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
             </div>
 
             <div className="receipt-section">
-              <h4>PAYMENT PROTOCOL</h4>
+              <h4>PAYMENT DETAILS</h4>
               <div className="receipt-item-row">
                 <span>METHOD:</span>
                 <span style={{ textTransform: 'uppercase' }}>{orderInfo?.paymentInfo?.method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</span>

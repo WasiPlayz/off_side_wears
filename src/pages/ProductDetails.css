@@ -155,6 +155,7 @@
   padding-bottom: 0.8rem;
   scrollbar-width: thin;
   scrollbar-color: var(--accent-color) transparent;
+  -webkit-overflow-scrolling: touch; /* Momentum scrolling for iOS */
 }
 
 .thumbnail-bar::-webkit-scrollbar {

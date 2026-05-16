@@ -100,7 +100,7 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({ products }) => {
       </div>
 
       <div style={{ background: '#0a0a0a', padding: '2.5rem', border: '1px solid #1a1a1a', borderRadius: '12px', marginBottom: '4rem' }}>
-        <h3 style={{ marginBottom: '2rem', color: 'var(--accent-color)', fontSize: '0.9rem', letterSpacing: '2px', textTransform: 'uppercase' }}>Generate New Promo Protocol</h3>
+        <h3 style={{ marginBottom: '2rem', color: 'var(--accent-color)', fontSize: '0.9rem', letterSpacing: '2px', textTransform: 'uppercase' }}>Generate New Promo Code</h3>
         <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
           <div className="form-group">
             <label style={{ display: 'block', marginBottom: '0.8rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 900, letterSpacing: '1px' }}>PROMO CODE</label>
@@ -171,7 +171,7 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({ products }) => {
       </div>
 
       <div className="promo-list">
-        <h3 style={{ marginBottom: '2rem', fontSize: '0.9rem', letterSpacing: '2px', textTransform: 'uppercase' }}>Active Deployment Protocols</h3>
+        <h3 style={{ marginBottom: '2rem', fontSize: '0.9rem', letterSpacing: '2px', textTransform: 'uppercase' }}>Active Promo Codes</h3>
         {loading && <div className="loading-screen" style={{ height: 'auto' }}>SYNCING...</div>}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
           {promoCodes.map(pc => (

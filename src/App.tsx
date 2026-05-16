@@ -25,6 +25,7 @@ const TrackOrder = lazy(() => import('./pages/TrackOrder'));
 const App: React.FC = () => {
   const [lastOrderTracking, setLastOrderTracking] = useState('');
   const [globalProducts, setGlobalProducts] = useState<Product[]>(localProducts);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -39,6 +40,8 @@ const App: React.FC = () => {
         }
       } catch (error) {
         console.error("Error fetching products", error);
+      } finally {
+        setProductsLoading(false);
       }
     };
     fetchProducts();
@@ -74,7 +77,7 @@ const App: React.FC = () => {
               </>
             } />
             <Route path="/shop" element={<Shop products={globalProducts} />} />
-            <Route path="/product/:id" element={<ProductDetails products={globalProducts} />} />
+            <Route path="/product/:id" element={<ProductDetails products={globalProducts} isLoading={productsLoading} />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/checkout" element={<Checkout onComplete={(track) => setLastOrderTracking(track)} />} />

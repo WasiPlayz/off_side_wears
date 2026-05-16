@@ -37,7 +37,24 @@ const AdminInventory: React.FC<AdminInventoryProps> = ({ products, onEdit, onDel
                   <h4 style={{ margin: '0 0 0.5rem 0', color: '#fff', fontSize: '0.95rem', lineHeight: '1.2' }}>{p.name}</h4>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <span style={{ fontSize: '0.6rem', color: '#64748b', background: '#111', padding: '0.2rem 0.5rem', border: '1px solid #222' }}>{p.category}</span>
-                    <span style={{ fontSize: '0.6rem', color: 'var(--accent-color)', background: 'rgba(59,130,246,0.1)', padding: '0.2rem 0.5rem', border: '1px solid rgba(59,130,246,0.2)', fontWeight: 800 }}>{p.price} BDT</span>
+                    <span style={{ fontSize: '0.6rem', color: 'var(--accent-color)', background: 'rgba(59, 130, 246, 0.1)', padding: '0.2rem 0.5rem', border: '1px solid rgba(59, 130, 246, 0.2)', fontWeight: 800 }}>{p.price} BDT</span>
+                  </div>
+                  <div style={{ marginTop: '0.8rem', display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    {['M', 'L', 'XL', 'XXL'].map(sz => {
+                      const isAvailable = !p.availableSizes || p.availableSizes.includes(sz);
+                      return (
+                        <span key={sz} style={{ 
+                          fontSize: '0.55rem', 
+                          padding: '0.1rem 0.3rem', 
+                          border: `1px solid ${isAvailable ? '#4ade80' : '#333'}`,
+                          color: isAvailable ? '#4ade80' : '#555',
+                          borderRadius: '2px',
+                          fontWeight: 800
+                        }}>
+                          {sz}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

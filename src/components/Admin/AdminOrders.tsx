@@ -64,7 +64,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, updateStatus }) => {
               </div>
 
               <div>
-                <h4 style={{ color: 'var(--accent-color)', fontSize: '0.7rem', letterSpacing: '2px', marginBottom: '1.2rem', textTransform: 'uppercase' }}>Financial Protocol</h4>
+                <h4 style={{ color: 'var(--accent-color)', fontSize: '0.7rem', letterSpacing: '2px', marginBottom: '1.2rem', textTransform: 'uppercase' }}>Financial Summary</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem' }}>
                   <p><strong>METHOD:</strong> <span style={{ color: '#e2e8f0' }}>{order.paymentInfo.method.toUpperCase()}</span></p>
                   {order.paymentInfo.mobileBanking && (

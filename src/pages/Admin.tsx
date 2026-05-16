@@ -117,7 +117,8 @@ const Admin: React.FC = () => {
         price: productData.price!,
         img: productData.img!,
         inStock: productData.inStock,
-        images: productData.images
+        images: productData.images,
+        availableSizes: productData.availableSizes
       };
 
       await setDoc(doc(db, 'products', String(productId)), finalProduct);
@@ -266,11 +267,11 @@ const Admin: React.FC = () => {
             {activeTab === 'inventory' && (
               <div>
                 <ProductForm 
+                  key={editingProduct?.id || 'new'}
                   editingProduct={editingProduct} 
                   onSave={handleSaveProduct} 
                   onCancel={() => setEditingProduct(null)} 
-                />
-                <AdminInventory 
+                />                <AdminInventory 
                   products={productsList} 
                   onEdit={handleEditClick} 
                   onDelete={handleDeleteProduct} 

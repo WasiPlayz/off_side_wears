@@ -278,7 +278,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
 
   return (
     <div className="checkout-page container">
-      <h1 className="glitch-text">CHECKOUT <br /><span className="highlight">PROTOCOL</span></h1>
+      <h1 className="glitch-text">CHECKOUT <br /><span className="highlight">FINALIZATION</span></h1>
       
       <div className="checkout-grid">
         <form id="checkout-main-form" className="checkout-form" onSubmit={handleCompleteOrder}>

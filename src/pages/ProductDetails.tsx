@@ -8,9 +8,10 @@ import './ProductDetails.css';
 
 interface ProductDetailsProps {
   products: Product[];
+  isLoading?: boolean;
 }
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
+const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -54,28 +55,57 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
 
   useEffect(() => {
     const loadProduct = () => {
-      if (id && products.length > 0) {
+      if (!isLoading && id && products.length > 0) {
         const foundProduct = products.find(p => p.id === parseInt(id));
         if (foundProduct) {
           setProduct(foundProduct);
           setActiveImg(foundProduct.images?.[0] || foundProduct.img);
           fetchReviews();
         } else {
+          // If loading is done and we STILL can't find it, go to shop
           navigate('/shop');
         }
       }
     };
     loadProduct();
-  }, [id, products, navigate, fetchReviews]);
+  }, [id, products, navigate, fetchReviews, isLoading]);
 
-  if (!product) {
-    return <div className="container" style={{ padding: '100px 0', textAlign: 'center' }}>LOADING PRODUCT...</div>;
+  if (isLoading || !product) {
+    return (
+      <div className="container" style={{ padding: '150px 0', textAlign: 'center' }}>
+        <div className="loading-screen" style={{ height: 'auto' }}>SYNCYNG ELITE WEARS...</div>
+      </div>
+    );
   }
 
+  const handleShare = async () => {
+    const shareData = {
+      title: product.name,
+      text: `Check out the ${product.name} at OFF_SIDE WEARS!`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('LINK COPIED TO CLIPBOARD');
+      }
+    } catch (err) {
+      console.error('Share failed', err);
+    }
+  };
+
   const isPlayerEdition = product.category.toUpperCase().includes('PLAYER');
-  const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+  const sizes = ['M', 'L', 'XL', 'XXL'];
   const gallery = (product.images && product.images.length > 0) ? product.images : [product.img || '/offside_wears.jpeg'];
   const isInStock = product.inStock !== false;
+
+  const isSizeAvailable = (size: string) => {
+    if (!product.availableSizes) return true;
+    return product.availableSizes.includes(size);
+  };
 
   const handleNextImg = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -169,11 +199,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
                   <button className="slider-arrow next" onClick={handleNextImg}>→</button>
                 </>
               )}
-              <div className="main-image-viewport" onClick={() => setIsZoomed(true)}>
+              <div className="main-image-viewport" onClick={() => setIsZoomed(true)} style={{ background: '#111' }}>
                 <img 
                   src={activeImg || '/offside_wears.jpeg'} 
                   alt={product.name} 
                   className="main-image" 
+                  fetchPriority="high"
+                  style={{ transition: 'opacity 0.4s ease-in-out' }}
+                  onLoad={(e) => {
+                    (e.target as HTMLImageElement).style.opacity = '1';
+                  }}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/offside_wears.jpeg';
                   }}
@@ -239,42 +274,79 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
           <div className="info-header">
             <span className="product-cat">{product.category}</span>
             <h1 className="glitch-text">{product.name}</h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
-              <p className="price-tag">{product.price} BDT</p>
-              <span style={{ 
-                padding: '0.2rem 0.6rem', 
-                fontSize: '0.7rem', 
-                fontWeight: 900, 
-                letterSpacing: '1px',
-                background: isInStock ? 'rgba(74, 222, 128, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                color: isInStock ? '#4ade80' : '#ef4444',
-                border: `1px solid ${isInStock ? '#4ade80' : '#ef4444'}`
-              }}>
-                {isInStock ? 'IN STOCK' : 'OUT OF STOCK'}
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <p className="price-tag">{product.price} BDT</p>
+                <span style={{ 
+                  padding: '0.2rem 0.6rem', 
+                  fontSize: '0.7rem', 
+                  fontWeight: 900, 
+                  letterSpacing: '1px',
+                  background: isInStock ? 'rgba(74, 222, 128, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                  color: isInStock ? '#4ade80' : '#ef4444',
+                  border: `1px solid ${isInStock ? '#4ade80' : '#ef4444'}`
+                }}>
+                  {isInStock ? 'IN STOCK' : 'OUT OF STOCK'}
+                </span>
+              </div>
+              <button 
+                onClick={handleShare}
+                className="btn-secondary mini"
+                style={{ 
+                  padding: '0.6rem 1rem', 
+                  fontSize: '0.65rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '0.5rem',
+                  letterSpacing: '2px',
+                  background: 'rgba(255,255,255,0.03)'
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                SHARE
+              </button>
             </div>
           </div>
           
           <div className="size-selection" style={{ opacity: isInStock ? 1 : 0.5, pointerEvents: isInStock ? 'auto' : 'none' }}>
             <h3>SELECT SIZE</h3>
             <div className="size-bar">
-              {sizes.map(size => (
-                <button 
-                  key={size} 
-                  className={`size-btn ${selectedSize === size ? 'active' : ''}`}
-                  onClick={() => setSelectedSize(size)}
-                  disabled={!isInStock}
-                >
-                  {size}
-                </button>
-              ))}
+              {sizes.map(size => {
+                const available = isSizeAvailable(size);
+                return (
+                  <button 
+                    key={size} 
+                    className={`size-btn ${selectedSize === size ? 'active' : ''} ${!available ? 'out-of-stock' : ''}`}
+                    onClick={() => available && setSelectedSize(size)}
+                    disabled={!isInStock || !available}
+                    style={{
+                      position: 'relative',
+                      opacity: available ? 1 : 0.4,
+                      cursor: available ? 'pointer' : 'not-allowed'
+                    }}
+                  >
+                    {size}
+                    {!available && (
+                      <div style={{ 
+                        position: 'absolute', 
+                        top: '50%', 
+                        left: '50%', 
+                        transform: 'translate(-50%, -50%) rotate(-45deg)',
+                        width: '100%',
+                        height: '2px',
+                        background: '#ef4444'
+                      }}></div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           <button 
             className="btn-primary full-width" 
             onClick={handleAddToCart} 
-            disabled={!isInStock}
+            disabled={!isInStock || !!(selectedSize && !isSizeAvailable(selectedSize))}
             style={{ 
               background: isInStock ? 'var(--accent-color)' : '#333',
               cursor: isInStock ? 'pointer' : 'not-allowed',
@@ -289,33 +361,28 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
             <div className="chart-text">
               <div className="chart-row header">
                 <span>SIZE</span>
+                <span>HEIGHT</span>
                 <span>CHEST</span>
-                <span>WAIST</span>
-              </div>
-              <div className="chart-row">
-                <span>S</span>
-                <span>34 - 37</span>
-                <span>30 - 32</span>
               </div>
               <div className="chart-row">
                 <span>M</span>
-                <span>37 - 40</span>
-                <span>32 - 35</span>
+                <span>27</span>
+                <span>38</span>
               </div>
               <div className="chart-row">
                 <span>L</span>
-                <span>40 - 44</span>
-                <span>35 - 39</span>
+                <span>28</span>
+                <span>40</span>
               </div>
               <div className="chart-row">
                 <span>XL</span>
-                <span>44 - 48</span>
-                <span>39 - 43</span>
+                <span>29</span>
+                <span>42</span>
               </div>
               <div className="chart-row">
                 <span>XXL</span>
-                <span>48 - 52</span>
-                <span>43 - 47</span>
+                <span>30</span>
+                <span>44</span>
               </div>
               <p className="note">*{isPlayerEdition ? 'Player Edition features a slim athletic fit. Size up for comfort.' : 'Fan Edition features a standard relaxed fit. Order your normal size.'}</p>
             </div>
@@ -355,7 +422,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products }) => {
 
         {showReviewForm && (
           <div className="review-form-container" style={{ background: '#111', padding: '2rem', border: '1px solid #333', marginBottom: '4rem', maxWidth: '600px' }}>
-            <h3 style={{ marginBottom: '1.5rem', color: 'var(--accent-color)' }}>REVIEW PROTOCOL</h3>
+            <h3 style={{ marginBottom: '1.5rem', color: 'var(--accent-color)' }}>PRODUCT REVIEW</h3>
             <form onSubmit={handleSubmitReview}>
               <div className="form-group" style={{ marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem', color: '#888' }}>NAME</label>
