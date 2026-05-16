@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 :root {
   --bg-color: #0a0518; /* Deep Indigo/Black */
   --text-color: #e0e7ff; /* Light Indigo/White */
@@ -7,8 +9,8 @@
   --neon-purple: #d946ef;
   --white: #ffffff;
   --dark-grey: #160e2a; /* Dark Purple-Grey */
-  --font-main: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  --font-display: 'Inter', sans-serif;
+  --font-main: 'Montserrat', sans-serif;
+  --font-display: 'Montserrat', sans-serif;
   --nav-bg: rgba(10, 5, 24, 0.85);
   --gradient-main: linear-gradient(135deg, var(--accent-color) 0%, var(--secondary-accent) 100%);
 }

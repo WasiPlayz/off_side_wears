@@ -281,7 +281,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
       <h1 className="glitch-text">CHECKOUT <br /><span className="highlight">PROTOCOL</span></h1>
       
       <div className="checkout-grid">
-        <form className="checkout-form" onSubmit={handleCompleteOrder}>
+        <form id="checkout-main-form" className="checkout-form" onSubmit={handleCompleteOrder}>
           <div className="form-section">
             <h3>SHIPPING INTEL</h3>
             <div className="form-row">
@@ -436,15 +436,6 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
               </div>
             )}
           </div>
-
-          <button 
-            type="submit"
-            className="btn-primary full-width" 
-            disabled={cart.length === 0 || isSubmitting}
-            style={{ marginTop: '2rem', height: '60px', fontSize: '1rem', letterSpacing: '2px' }}
-          >
-            {isSubmitting ? 'TRANSMITTING ORDER...' : 'COMPLETE ORDER PROTOCOL'}
-          </button>
         </form>
 
         <div className="order-summary">
@@ -530,6 +521,16 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
               <span>{total} BDT</span>
             </div>
           </div>
+
+          <button 
+            type="submit"
+            form="checkout-main-form"
+            className="btn-primary full-width checkout-submit-btn" 
+            disabled={cart.length === 0 || isSubmitting}
+            style={{ marginTop: '2rem', height: '60px', fontSize: '1rem', letterSpacing: '2px' }}
+          >
+            {isSubmitting ? 'TRANSMITTING ORDER...' : 'COMPLETE ORDER'}
+          </button>
         </div>
       </div>
     </div>
