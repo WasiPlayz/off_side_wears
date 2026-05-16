@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toPng } from 'html-to-image';
 import type { Order } from '../types';
@@ -11,18 +11,18 @@ interface SuccessProps {
 const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
   const receiptRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [orderInfo, setOrderInfo] = useState<Order | null>(null);
-
-  useEffect(() => {
+  const [orderInfo] = useState<Order | null>(() => {
     const savedOrder = sessionStorage.getItem('lastOrderDetails');
     if (savedOrder) {
       try {
-        setOrderInfo(JSON.parse(savedOrder) as Order);
+        return JSON.parse(savedOrder) as Order;
       } catch (err) {
         console.error('Failed to parse order info', err);
+        return null;
       }
     }
-  }, []);
+    return null;
+  });
 
   const handleDownloadReceipt = async () => {
     if (receiptRef.current === null) {
@@ -32,16 +32,25 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
     
     setIsDownloading(true);
     
-    // Force a small delay to ensure images are loaded
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     try {
-      // Create a cloned node for rendering to avoid issues with absolute positioning
+      // Ensure fonts are loaded before capture - CRITICAL for text rendering on mobile
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+      
+      // Force a slightly longer delay for low-end devices to ensure layout and rendering are finalized
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Capture to PNG with optimized settings for mobile
       const dataUrl = await toPng(receiptRef.current, { 
         cacheBust: true,
         backgroundColor: '#0a0518',
-        pixelRatio: 2, // Higher quality
-        skipAutoScale: true,
+        pixelRatio: 1.5, // Reduced from 2.0 to prevent memory crashes on low-end phones while maintaining quality
+        skipAutoScale: false,
+        style: {
+          opacity: '1',
+          visibility: 'visible',
+        }
       });
       
       const link = document.createElement('a');
@@ -91,8 +100,8 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
           <Link to="/" className="btn-secondary">RETURN TO SHOP</Link>
         </div>
 
-        {/* Improved Receipt Template - rendered off-screen but visible to the tool */}
-        <div style={{ position: 'fixed', left: '-5000px', top: '0', zIndex: -1 }}>
+        {/* Improved Receipt Template - rendered off-screen but visible to the tool with better mobile positioning */}
+        <div style={{ position: 'absolute', top: '-10000px', left: '0', opacity: 0, pointerEvents: 'none', zIndex: -1 }}>
           <div ref={receiptRef} className="receipt-template" style={{ display: 'block' }}>
             <div className="receipt-header">
               <div className="receipt-logo">OFF_SIDE</div>

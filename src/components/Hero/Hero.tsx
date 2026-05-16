@@ -17,12 +17,12 @@ const Hero: React.FC = () => {
         </div>
         <div className="hero-visual">
           <div className="visual-box">
-            <img 
-              src="/messi_kisses_cup.jpg" 
-              alt="Messi World Cup Celebration" 
+            <img
+              src="/messi_kisses_cup.jpg"
+              alt="Messi World Cup Celebration"
               className="hero-img"
-            />
-          </div>
+              loading="lazy"
+            />          </div>
           <div className="visual-accent"></div>
         </div>
       </div>
