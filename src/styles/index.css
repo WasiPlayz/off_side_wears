@@ -1,14 +1,17 @@
 @import './variables.css';
 
-html, body, #root {
-  max-width: 100%;
-  overflow-x: hidden;
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  overflow-x: clip; /* Modern way to prevent horizontal scroll without locking vertical */
 }
 
 .container {
