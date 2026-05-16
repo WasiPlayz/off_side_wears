@@ -160,6 +160,12 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
                 <span>SUBTOTAL:</span>
                 <span>{orderInfo?.orderSummary?.subtotal || 0} BDT</span>
               </div>
+              {(orderInfo?.orderSummary?.discountAmount || 0) > 0 && (
+                <div className="total-row" style={{ color: '#4ade80' }}>
+                  <span>DISCOUNT ({orderInfo?.orderSummary?.appliedPromoCode}):</span>
+                  <span>-{orderInfo?.orderSummary?.discountAmount} BDT</span>
+                </div>
+              )}
               <div className="total-row">
                 <span>SHIPPING:</span>
                 <span>{orderInfo?.orderSummary?.shipping || 0} BDT</span>
@@ -178,7 +184,7 @@ const Success: React.FC<SuccessProps> = ({ trackingNumber }) => {
               </div>
             </div>
             
-            <div className="receipt-watermark" style={{ opacity: 0.1, marginTop: '2rem' }}>AUTHENTIC 1:1 GRADE PROTOCOL // OFF_SIDE_WEARS</div>
+            <div className="receipt-watermark" style={{ opacity: 0.1, marginTop: '2rem' }}>AUTHENTIC 1:1 GRADE QUALITY // OFF_SIDE_WEARS</div>
           </div>
         </div>
       </div>

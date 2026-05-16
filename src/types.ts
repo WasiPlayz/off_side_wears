@@ -44,6 +44,8 @@ export interface Order {
     subtotal: number;
     shipping: number;
     total: number;
+    discountAmount?: number;
+    appliedPromoCode?: string | null;
     amountPaid?: number;
     balanceDue?: number;
   };
@@ -58,4 +60,13 @@ export interface Review {
   rating: number;
   comment: string;
   createdAt: Timestamp;
+}
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  discount: number; // percentage
+  type: 'global' | 'product';
+  productIds?: number[];
+  active: boolean;
 }

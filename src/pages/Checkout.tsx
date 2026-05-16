@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDoc, doc } from 'firebase/firestore';
 import emailjs from '@emailjs/browser';
 import { db } from '../firebase';
 import { districts, thanas } from '../data/bd-data';
 import { useCart } from '../context/CartContext';
+import type { PromoCode } from '../types';
 import './Checkout.css';
 
 interface CheckoutProps {
@@ -28,12 +29,83 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const subtotal = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
-  const shipping = district.toLowerCase() === 'dhaka' ? 60 : 120;
-  const total = subtotal + shipping;
+  // Promo Code States
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
+  const [promoError, setPromoError] = useState('');
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+
+  // Consolidate Price Calculations for Accuracy
+  const priceBreakdown = useMemo(() => {
+    const sub = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
+    
+    let disc = 0;
+    if (appliedPromo) {
+      if (appliedPromo.type === 'global') {
+        disc = Math.round((sub * appliedPromo.discount) / 100);
+      } else {
+        const applicableTotal = cart.reduce((acc, item) => {
+          if (appliedPromo.productIds?.includes(item.id)) {
+            return acc + (parseFloat(item.price) * item.quantity);
+          }
+          return acc;
+        }, 0);
+        disc = Math.round((applicableTotal * appliedPromo.discount) / 100);
+      }
+    }
+
+    const ship = district.toLowerCase() === 'dhaka' ? 70 : 140;
+    const tot = sub - disc + ship;
+    
+    return { subtotal: sub, discountAmount: disc, shipping: ship, total: tot };
+  }, [cart, appliedPromo, district]);
+
+  const { subtotal, discountAmount, shipping, total } = priceBreakdown;
   
   const amountPaid = paymentMethod === 'cod' ? shipping : (paymentMethod === 'online' ? total : 0);
-  const balanceDue = paymentMethod === 'cod' ? subtotal : 0;
+  const balanceDue = paymentMethod === 'cod' ? (subtotal - discountAmount) : 0;
+
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setIsApplyingPromo(true);
+    setPromoError('');
+    
+    try {
+      const promoId = promoInput.toUpperCase().replace(/\s+/g, '_');
+      const promoDoc = await getDoc(doc(db, 'promocodes', promoId));
+      
+      if (promoDoc.exists()) {
+        const promoData = promoDoc.data() as PromoCode;
+        if (!promoData.active) {
+          setPromoError('THIS PROMO CODE IS NO LONGER ACTIVE.');
+          return;
+        }
+
+        // Validate applicability
+        if (promoData.type === 'product') {
+          const hasEligibleProduct = cart.some(item => promoData.productIds?.includes(item.id));
+          if (!hasEligibleProduct) {
+            setPromoError('THIS CODE IS NOT VALID FOR THE PRODUCTS IN YOUR CART.');
+            return;
+          }
+        }
+
+        setAppliedPromo(promoData);
+        setPromoInput('');
+      } else {
+        setPromoError('INVALID PROMO CODE. PLEASE CHECK AND TRY AGAIN.');
+      }
+    } catch (err) {
+      console.error("Error applying promo", err);
+      setPromoError('SYSTEM ERROR. FAILED TO VALIDATE PROMO.');
+    } finally {
+      setIsApplyingPromo(false);
+    }
+  };
+
+  const removePromo = () => {
+    setAppliedPromo(null);
+  };
 
   const availableThanas = thanas[district] || ["Sadar", "Other"];
 
@@ -121,6 +193,8 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
           subtotal,
           shipping,
           total,
+          discountAmount,
+          appliedPromoCode: appliedPromo?.code || null,
           amountPaid,
           balanceDue
         },
@@ -174,6 +248,8 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
             tax_cost: 0,
             subtotal: subtotal,
             total_cost: total,
+            discount_amount: discountAmount,
+            applied_promo: appliedPromo?.code || 'N/A',
             amount_paid: amountPaid,
             balance_due: balanceDue,
             payment_method: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment',
@@ -286,7 +362,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
                 )}
                 {paymentMethod === 'online' && (
                   <p style={{ color: 'var(--accent-color)', marginBottom: '2rem', fontWeight: 800, fontSize: '0.8rem', textAlign: 'center', letterSpacing: '1px' }}>
-                    * PAY TOTAL AMOUNT {total} BDT TO INITIATE SHIPMENT
+                    * PAY TOTAL AMOUNT {total} BDT TO INITIATE SHIPMENT {discountAmount > 0 && `(DISCOUNT OF ${discountAmount} BDT APPLIED)`}
                   </p>
                 )}
                 
@@ -373,6 +449,40 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
 
         <div className="order-summary">
           <h3>ORDER SUMMARY</h3>
+          
+          {/* Promo Code Section */}
+          <div className="promo-section" style={{ marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '2rem' }}>
+            <label style={{ fontSize: '0.7rem', fontWeight: 900, color: '#888', display: 'block', marginBottom: '0.8rem', letterSpacing: '2px' }}>PROMO CODE</label>
+            {!appliedPromo ? (
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input 
+                  type="text" 
+                  placeholder="ENTER CODE" 
+                  value={promoInput}
+                  onChange={e => setPromoInput(e.target.value)}
+                  style={{ flex: 1, padding: '0.8rem', background: '#000', border: '1px solid #222', fontSize: '0.8rem' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={handleApplyPromo}
+                  disabled={isApplyingPromo || !promoInput}
+                  style={{ padding: '0 1rem', background: 'var(--accent-color)', color: '#fff', fontWeight: 900, fontSize: '0.7rem', cursor: 'pointer' }}
+                >
+                  {isApplyingPromo ? '...' : 'APPLY'}
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(59, 130, 246, 0.1)', padding: '0.8rem 1rem', border: '1px dashed var(--accent-color)' }}>
+                <div>
+                  <span style={{ color: 'var(--accent-color)', fontWeight: 900, fontSize: '0.8rem' }}>{appliedPromo.code} APPLIED</span>
+                  <p style={{ fontSize: '0.65rem', color: '#888', margin: 0 }}>{appliedPromo.discount}% DISCOUNT ACTIVATED</p>
+                </div>
+                <button type="button" onClick={removePromo} style={{ background: 'transparent', color: '#ef4444', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer' }}>REMOVE</button>
+              </div>
+            )}
+            {promoError && <p style={{ color: '#ef4444', fontSize: '0.7rem', marginTop: '0.5rem', fontWeight: 700 }}>{promoError}</p>}
+          </div>
+
           <div className="summary-items">
             {cart.map((item, idx) => (
               <div key={`${item.id}-${item.size}-${idx}`} className="summary-item">
@@ -384,15 +494,25 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
               </div>
             ))}
           </div>
+
           <div className="summary-total">
             <div className="total-row">
               <span>SUBTOTAL</span>
               <span style={{ color: '#fff' }}>{subtotal} BDT</span>
             </div>
+            
+            {discountAmount > 0 && (
+              <div className="total-row" style={{ color: '#4ade80' }}>
+                <span>DISCOUNT ({appliedPromo?.code})</span>
+                <span>-{discountAmount} BDT</span>
+              </div>
+            )}
+
             <div className="total-row">
               <span>SHIPPING ({district || 'NOT SELECTED'})</span>
               <span style={{ color: '#fff' }}>{shipping} BDT</span>
             </div>
+            
             {paymentMethod === 'cod' && (
               <>
                 <div className="total-row" style={{ color: 'var(--accent-color)' }}>

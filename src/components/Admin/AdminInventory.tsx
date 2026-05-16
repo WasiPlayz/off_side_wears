@@ -10,34 +10,52 @@ interface AdminInventoryProps {
 
 const AdminInventory: React.FC<AdminInventoryProps> = ({ products, onEdit, onDelete, onSeed }) => {
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h3>CURRENT INVENTORY ({products.length})</h3>
-        <button onClick={onSeed} style={{ padding: '0.5rem 1rem', background: 'transparent', color: '#888', border: '1px solid #444', cursor: 'pointer' }}>
-          Seed Initial Data (Dev Only)
+    <div className="admin-inventory-section">
+      <div className="admin-section-header">
+        <div>
+          <h2>PRODUCT INVENTORY</h2>
+          <p style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 700 }}>{products.length} ITEMS TOTAL</p>
+        </div>
+        <button onClick={onSeed} style={{ padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.05)', color: '#64748b', border: '1px solid #222', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '1px' }}>
+          SEED INITIAL DATA
         </button>
       </div>
 
-      <div style={{ display: 'grid', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
         {products.map(p => (
-          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '1rem', border: '1px solid #333' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <img src={p.img} alt={p.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
-              <div>
-                <h4 style={{ margin: 0, color: '#fff' }}>
-                  {p.name} 
-                  {p.inStock === false && <span style={{ marginLeft: '1rem', fontSize: '0.6rem', background: '#ef4444', color: '#fff', padding: '0.1rem 0.4rem', borderRadius: '2px' }}>OUT OF STOCK</span>}
-                </h4>
-                <p style={{ margin: 0, color: '#888', fontSize: '0.8rem' }}>ID: {p.id} | {p.category} | {p.price} BDT | {p.images?.length || 1} images</p>
-              </div>
+          <div key={p.id} className="admin-card">
+            <div className="admin-card-header">
+              <span style={{ fontSize: '0.65rem', color: 'var(--accent-color)', fontWeight: 900 }}>ID: #{p.id}</span>
+              <span className={`status-pill ${p.inStock !== false ? 'status-completed' : 'status-cancelled'}`}>
+                {p.inStock !== false ? 'IN STOCK' : 'OUT OF STOCK'}
+              </span>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={() => onEdit(p)} style={{ padding: '0.5rem 1rem', background: '#333', color: '#fff', border: '1px solid #444', cursor: 'pointer' }}>
-                EDIT
-              </button>
-              <button onClick={() => onDelete(p.id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', cursor: 'pointer' }}>
-                DELETE
-              </button>
+            <div className="admin-card-body">
+              <div style={{ display: 'flex', gap: '1.2rem', marginBottom: '1.5rem' }}>
+                <img src={p.img} alt={p.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #222' }} />
+                <div style={{ flex: 1 }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#fff', fontSize: '0.95rem', lineHeight: '1.2' }}>{p.name}</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.6rem', color: '#64748b', background: '#111', padding: '0.2rem 0.5rem', border: '1px solid #222' }}>{p.category}</span>
+                    <span style={{ fontSize: '0.6rem', color: 'var(--accent-color)', background: 'rgba(59,130,246,0.1)', padding: '0.2rem 0.5rem', border: '1px solid rgba(59,130,246,0.2)', fontWeight: 800 }}>{p.price} BDT</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '0.8rem' }}>
+                <button 
+                  onClick={() => onEdit(p)} 
+                  style={{ flex: 1, padding: '0.8rem', background: 'var(--accent-color)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: '900', fontSize: '0.7rem', letterSpacing: '1px', borderRadius: '4px' }}
+                >
+                  EDIT DETAILS
+                </button>
+                <button 
+                  onClick={() => onDelete(p.id)} 
+                  style={{ padding: '0.8rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', cursor: 'pointer', fontWeight: '900', fontSize: '0.7rem', borderRadius: '4px' }}
+                >
+                  DELETE
+                </button>
+              </div>
             </div>
           </div>
         ))}

@@ -1,106 +1,145 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './About.css';
 
 const About: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setShowPopup(true);
+      setEmail('');
+    }
+  };
+
+  const handleProceedToShop = () => {
+    setShowPopup(false);
+    navigate('/shop');
+  };
+
   return (
     <div className="about-page">
       <section className="about-hero">
         <div className="container">
           <div className="hero-content">
-            <h1 className="glitch-text">BEYOND THE <br /><span className="highlight">90 MINUTES</span></h1>
-            <p className="subtitle">Defining the intersection of elite performance and street culture.</p>
-          </div>
-        </div>
-        <div className="hero-overlay-gradient"></div>
-      </section>
-
-      <section className="about-manifesto container">
-        <div className="manifesto-grid">
-          <div className="manifesto-text">
-            <h2 className="section-title">OUR <span className="highlight">MANIFESTO</span></h2>
-            <p className="lead-text">
-              OFF_SIDE WEARS was born from a singular obsession: the pursuit of the perfect kit. 
-              We believe a jersey is more than fabric—it's a vessel of loyalty, a piece of history, 
-              and a statement of intent.
+            <div className="hero-badge reveal">ESTABLISHED 2026 // DHAKA</div>
+            <h1 className="glitch-text reveal" style={{ animationDelay: '0.2s' }}>
+              ENGINEERED FOR <br /><span className="highlight">GLORY</span>
+            </h1>
+            <p className="subtitle reveal" style={{ animationDelay: '0.4s' }}>
+              The definitive destination for 1:1 elite grade player edition kits. 
+              Where precision meets passion.
             </p>
-            <div className="manifesto-details">
-              <p>
-                Founded in 2026, we recognized a void in the market where "premium" was often just a label. 
-                We set out to dismantle that standard, sourcing only 1:1 elite grade garments that mirror 
-                the exact specifications of professional pitch-wear.
-              </p>
-              <p>
-                From heat-pressed silicone crests to moisture-wicking aero-fabrics, every item in our 
-                collection is vetted through our internal performance protocols. Whether you're 
-                dominating the field or the streets, OFF_SIDE ensures you carry the glory.
-              </p>
-            </div>
-          </div>
-          <div className="manifesto-visual">
-            <div className="visual-frame">
-              <img 
-                src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800" 
-                alt="OFF_SIDE Craftsmanship" 
-              />
-              <div className="frame-accent"></div>
-            </div>
           </div>
         </div>
       </section>
 
-      <section className="about-pillars">
-        <div className="container">
-          <div className="pillars-grid">
-            <div className="pillar-item">
-              <div className="pillar-num">01</div>
-              <h3>ELITE GRADE</h3>
-              <p>We specialize in 1:1 Player Editions. Zero compromise on technical specs, weight, or breathability.</p>
+      <section className="about-philosophy container">
+        <div className="philosophy-content">
+          <div className="text-reveal-box">
+            <h2 className="section-title reveal">OUR PHILOSOPHY</h2>
+            <p className="lead-text reveal" style={{ animationDelay: '0.1s' }}>
+              WE DON'T JUST SELL JERSEYS. <br />
+              WE EQUIP THE DRIVEN.
+            </p>
+          </div>
+          <div className="philosophy-grid">
+            <div className="philosophy-item reveal" style={{ animationDelay: '0.2s' }}>
+              <span className="item-num">01</span>
+              <h3>THE 1:1 STANDARD</h3>
+              <p>
+                Our "Elite Grade" isn't a marketing buzzword. It's a technical specification. 
+                Heat-pressed silicone crests, advanced aero-fabrics, and laser-cut ventilation 
+                exactly as worn by the pros.
+              </p>
             </div>
-            <div className="pillar-item">
-              <div className="pillar-num">02</div>
-              <h3>CULTURAL DEPTH</h3>
-              <p>Curated selections that celebrate the heritage of the world's most iconic clubs and national teams.</p>
+            <div className="philosophy-item reveal" style={{ animationDelay: '0.3s' }}>
+              <span className="item-num">02</span>
+              <h3>BEYOND BORDERS</h3>
+              <p>
+                Sourcing the rarest drops from the most iconic clubs and national teams worldwide. 
+                If it's worn on the global stage, it's available in our collection.
+              </p>
             </div>
-            <div className="pillar-item">
-              <div className="pillar-num">03</div>
+            <div className="philosophy-item reveal" style={{ animationDelay: '0.4s' }}>
+              <span className="item-num">03</span>
               <h3>STREET LEGACY</h3>
-              <p>Engineered for the pitch, but tailored for the lifestyle. Versatility is woven into every fiber.</p>
+              <p>
+                Tailored for the pitch, designed for the lifestyle. Our kits transition 
+                seamlessly from the stadium to the streets, making a statement 24/7.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="about-culture container">
-        <div className="culture-content">
-          <div className="culture-image">
-            <img 
-              src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&q=80&w=1200" 
-              alt="The Beautiful Game" 
-            />
-          </div>
-          <div className="culture-text">
-            <h2 className="section-title">THE <span className="highlight">CULTURE</span></h2>
+      <section className="about-mission">
+        <div className="container mission-content reveal">
+          <h2 className="section-title">MISSION LOG</h2>
+          <div className="mission-statement">
             <p>
-              Football is the world's greatest language. OFF_SIDE WEARS is your voice. 
-              We don't just provide jerseys; we provide the armor for your passion. 
-              Our community is built on the shared respect for the game's history 
-              and its future.
+              OFF_SIDE WEARS WAS BORN FROM A VOID IN THE BANGLADESHI MARKET. 
+              WE SAW FANS SETTLING FOR SUBPAR QUALITY. WE SAW PASSION BEING 
+              MET WITH MEDIOCRITY. 
             </p>
-            <div className="brand-signature">OFF_SIDE // EST. 2026</div>
+            <p>
+              OUR MISSION IS SIMPLE: TO PROVIDE EVERY FOOTBALL ENTHUSIAST 
+              WITH THE EXACT ARMOR THEY DESERVE. ZERO COMPROMISE ON FABRIC. 
+              ZERO COMPROMISE ON DETAIL. ZERO COMPROMISE ON AUTHENTICITY.
+            </p>
+          </div>
+          <div className="mission-footer">
+            <div className="footer-stat">
+              <span className="stat-value">1:1</span>
+              <span className="stat-label">GRADE QUALITY</span>
+            </div>
+            <div className="footer-stat">
+              <span className="stat-value">24/7</span>
+              <span className="stat-label">SYSTEM SUPPORT</span>
+            </div>
+            <div className="footer-stat">
+              <span className="stat-value">∞</span>
+              <span className="stat-label">FOOTBALL PASSION</span>
+            </div>
           </div>
         </div>
       </section>
 
       <section className="about-cta container">
-        <div className="cta-box">
-          <h2>JOIN THE CLUB</h2>
-          <p>Subscribe to receive intel on upcoming drops, limited restocks, and exclusive prototype access.</p>
-          <div className="cta-input-group">
-            <input type="email" placeholder="ENTER YOUR EMAIL" />
-            <button className="btn-primary">INITIATE</button>
-          </div>
+        <div className="cta-box reveal">
+          <h2 className="glitch-text">BECOME ELITE</h2>
+          <p>Subscribe to our secure datastream for exclusive restock intel and early prototype access.</p>
+          <form onSubmit={handleSubscribe} className="cta-input-group">
+            <input 
+              type="email" 
+              placeholder="ENTER SYSTEM EMAIL" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <button type="submit" className="btn-primary">INITIATE ACCESS</button>
+          </form>
         </div>
       </section>
+
+      {/* Promo Code Popup */}
+      {showPopup && (
+        <div className="promo-popup-overlay">
+          <div className="promo-popup">
+            <div className="popup-badge">ACCESS GRANTED</div>
+            <h2>ELITE STATUS CONFIRMED</h2>
+            <p>YOU HAVE UNLOCKED A 10% DISCOUNT ON ALL PLAYER EDITION KITS.</p>
+            <div className="promo-display">
+              <span className="promo-label">PROMO CODE:</span>
+              <strong className="promo-code">ELITE10</strong>
+            </div>
+            <button className="btn-primary full-width" onClick={handleProceedToShop}>PROCEED TO SHOP</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

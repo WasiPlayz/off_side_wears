@@ -7,17 +7,128 @@
 
 .admin-dashboard {
   min-height: 80vh;
+  padding-bottom: 5rem;
 }
 
-.orders-list {
-  margin-top: 2rem;
+/* Tab Styling */
+.admin-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.order-card {
+.admin-tab-btn {
+  flex: 1;
+  padding: 1rem;
+  background: transparent;
+  color: #64748b;
+  border: none;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.order-card:hover {
+.admin-tab-btn.active {
+  background: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.admin-tab-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+}
+
+/* Section Styling */
+.admin-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #222;
+}
+
+.admin-section-header h2 {
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+/* Dashboard Cards */
+.admin-card {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-card:hover {
   border-color: var(--accent-color);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  transform: translateY(-2px);
+}
+
+.admin-card-header {
+  padding: 1.5rem;
+  background: #111;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-card-body {
+  padding: 1.5rem;
+}
+
+/* Status Badges */
+.status-pill {
+  padding: 0.4rem 0.8rem;
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.status-pending { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid #60a5fa; }
+.status-processing { background: rgba(168, 85, 247, 0.1); color: #a855f7; border: 1px solid #a855f7; }
+.status-shipped { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid #3b82f6; }
+.status-completed { background: rgba(74, 222, 128, 0.1); color: #4ade80; border: 1px solid #4ade80; }
+.status-cancelled { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; }
+
+/* Form Elements */
+.admin-input {
+  width: 100%;
+  background: #000;
+  border: 1px solid #222;
+  color: #fff;
+  padding: 0.8rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.admin-input:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .admin-tab-btn {
+    padding: 0.8rem;
+  }
 }

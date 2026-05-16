@@ -286,6 +286,42 @@ input:focus, select:focus {
   font-size: 1.1rem;
 }
 
+/* Promo Section */
+.promo-section input {
+  font-size: 0.8rem;
+  padding: 0.8rem;
+}
+
+.promo-applied-box {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px dashed var(--accent-color);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 4px;
+}
+
+[data-theme='light'] .promo-applied-box {
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.promo-success-text {
+  color: var(--accent-color);
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.promo-remove-btn {
+  background: transparent;
+  color: #ef4444;
+  font-weight: 800;
+  font-size: 0.7rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .form-section {
     padding: 2rem 1.2rem;

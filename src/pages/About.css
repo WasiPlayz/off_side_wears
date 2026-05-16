@@ -4,199 +4,202 @@
   overflow-x: hidden;
 }
 
-/* Hero Section */
+/* Hero Section Refinement */
 .about-hero {
-  height: 80vh;
-  position: relative;
+  height: 90vh;
   display: flex;
   align-items: center;
-  background-image: linear-gradient(rgba(10, 5, 24, 0.7), rgba(10, 5, 24, 0.7)), 
-                    url('https://images.unsplash.com/photo-1543351611-58f69d7c1781?auto=format&fit=crop&q=80&w=1920');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-
-.hero-content {
   position: relative;
-  z-index: 2;
-  max-width: 800px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.eyebrow {
-  display: block;
-  color: var(--accent-color);
+.hero-badge {
+  font-size: 0.7rem;
   font-weight: 900;
-  letter-spacing: 5px;
-  font-size: 0.8rem;
-  margin-bottom: 1.5rem;
-  animation: fadeIn 1s ease-out;
-}
-
-.hero-content h1 {
-  font-size: clamp(3rem, 10vw, 6rem);
-  line-height: 0.9;
+  letter-spacing: 4px;
+  color: var(--accent-color);
+  background: rgba(59, 130, 246, 0.1);
+  padding: 0.6rem 1.5rem;
+  border-radius: 100px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  text-transform: uppercase;
   margin-bottom: 2rem;
+  display: inline-block;
 }
 
-.subtitle {
-  font-size: 1.2rem;
-  opacity: 0.8;
-  max-width: 500px;
-  line-height: 1.6;
+.about-hero h1 {
+  font-size: clamp(3.5rem, 12vw, 8rem);
+  line-height: 0.85;
+  font-weight: 900;
+  margin-bottom: 2.5rem;
+  letter-spacing: -3px;
 }
 
-/* Manifesto Section */
-.about-manifesto {
-  padding: 10rem 0;
+.about-hero .subtitle {
+  font-size: 1.4rem;
+  font-weight: 500;
+  opacity: 0.6;
+  max-width: 600px;
+  line-height: 1.5;
 }
 
-.manifesto-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6rem;
-  align-items: center;
+/* Philosophy Section */
+.about-philosophy {
+  padding: 12rem 0;
+}
+
+.text-reveal-box {
+  margin-bottom: 6rem;
 }
 
 .section-title {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
+  font-weight: 900;
   letter-spacing: 5px;
-  color: var(--grey);
-  margin-bottom: 2rem;
+  color: var(--accent-color);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
 }
 
 .lead-text {
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 3rem;
-  color: var(--white);
-}
-
-.manifesto-details {
-  color: var(--grey);
-  line-height: 1.8;
-}
-
-.manifesto-details p {
-  margin-bottom: 1.5rem;
-}
-
-.manifesto-visual {
-  position: relative;
-}
-
-.visual-frame {
-  position: relative;
-  padding: 2rem;
-}
-
-.visual-frame img {
-  width: 100%;
-  height: auto;
-  border-radius: 4px;
-  position: relative;
-  z-index: 1;
-}
-
-.frame-accent {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 80%;
-  height: 80%;
-  border: 2px solid var(--accent-color);
-  z-index: 0;
-}
-
-/* Pillars Section */
-.about-pillars {
-  background: #0d081d;
-  padding: 8rem 0;
-}
-
-.pillars-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4rem;
-}
-
-.pillar-item {
-  position: relative;
-}
-
-.pillar-num {
   font-size: 4rem;
   font-weight: 900;
-  color: rgba(59, 130, 246, 0.1);
-  position: absolute;
-  top: -2rem;
-  left: -1rem;
+  line-height: 1;
+  letter-spacing: -1px;
 }
 
-.pillar-item h3 {
-  color: var(--white);
-  letter-spacing: 3px;
-  margin-bottom: 1.5rem;
-  font-size: 1.2rem;
-}
-
-.pillar-item p {
-  color: var(--grey);
-  line-height: 1.6;
-}
-
-/* Culture Section */
-.about-culture {
-  padding: 10rem 0;
-}
-
-.culture-content {
+.philosophy-grid {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 6rem;
-  align-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
 }
 
-.culture-image img {
-  width: 100%;
-  height: 600px;
-  object-fit: cover;
+.philosophy-item {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 3rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 4px;
+  transition: all 0.4s ease;
+  position: relative;
 }
 
-.brand-signature {
-  margin-top: 3rem;
+.philosophy-item:hover {
+  background: rgba(59, 130, 246, 0.05);
+  border-color: var(--accent-color);
+  transform: translateY(-10px);
+}
+
+.item-num {
+  font-size: 0.7rem;
   font-weight: 900;
-  letter-spacing: 3px;
   color: var(--accent-color);
-  font-size: 0.8rem;
+  margin-bottom: 1.5rem;
+  display: block;
+  opacity: 0.5;
+}
+
+.philosophy-item h3 {
+  font-size: 1.2rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.philosophy-item p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  opacity: 0.6;
+}
+
+/* Mission Log Section */
+.about-mission {
+  background: #000;
+  padding: 10rem 0;
+  border-top: 1px solid #111;
+  border-bottom: 1px solid #111;
+}
+
+.mission-statement {
+  max-width: 900px;
+  margin-bottom: 5rem;
+}
+
+.mission-statement p {
+  font-size: 2.2rem;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 2.5rem;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.mission-footer {
+  display: flex;
+  gap: 6rem;
+}
+
+.footer-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--accent-color);
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  opacity: 0.4;
+  text-transform: uppercase;
 }
 
 /* CTA Section */
+.about-cta {
+  padding: 12rem 0;
+}
+
 .cta-box {
-  background: linear-gradient(45deg, #111, #0a0518);
-  padding: 6rem;
+  background: linear-gradient(135deg, #0a0518 0%, #111 100%);
+  padding: 8rem 4rem;
   text-align: center;
   border: 1px solid #222;
-  margin-bottom: 10rem;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
 }
 
 .cta-box h2 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
 }
 
 .cta-box p {
-  color: var(--grey);
-  margin-bottom: 3rem;
-  max-width: 600px;
+  opacity: 0.6;
+  margin-bottom: 4rem;
+  max-width: 500px;
   margin-inline: auto;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
 .cta-input-group {
   display: flex;
-  max-width: 500px;
+  max-width: 550px;
   margin: 0 auto;
   gap: 1rem;
 }
@@ -204,53 +207,143 @@
 .cta-input-group input {
   flex: 1;
   background: #000;
-  border: 1px solid #333;
+  border: 1px solid #222;
   color: #fff;
-  padding: 1rem;
-  font-weight: 700;
+  padding: 1.2rem 1.5rem;
+  font-weight: 600;
+  border-radius: 8px;
 }
 
 .cta-input-group button {
   padding: 0 3rem;
+  border-radius: 8px;
 }
 
-/* Animations */
+/* Popup Overlay */
+.promo-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: fadeIn 0.4s ease;
+}
+
+.promo-popup {
+  background: #0a0a0a;
+  border: 1px solid var(--accent-color);
+  padding: 4rem;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
+  animation: scaleIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.popup-badge {
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--accent-color);
+  background: rgba(59, 130, 246, 0.1);
+  padding: 0.5rem 1.2rem;
+  border-radius: 100px;
+  display: inline-block;
+  margin-bottom: 2rem;
+}
+
+.promo-popup h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.promo-popup p {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+}
+
+.promo-display {
+  background: #000;
+  padding: 2rem;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.promo-label {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #64748b;
+}
+
+.promo-code {
+  font-size: 2.5rem;
+  color: var(--accent-color);
+  letter-spacing: 5px;
+  font-family: monospace;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Mobile Responsiveness */
+/* Responsive */
 @media (max-width: 1024px) {
-  .manifesto-grid, .culture-content {
+  .philosophy-grid {
     grid-template-columns: 1fr;
-    gap: 4rem;
+    gap: 2rem;
   }
   
-  .manifesto-visual {
-    order: -1;
+  .lead-text {
+    font-size: 3rem;
   }
-  
-  .pillars-grid {
-    grid-template-columns: 1fr;
-    gap: 5rem;
+
+  .mission-statement p {
+    font-size: 1.8rem;
   }
 }
 
 @media (max-width: 768px) {
-  .cta-box {
-    padding: 3rem 1.5rem;
+  .about-hero h1 {
+    font-size: 4rem;
   }
   
+  .mission-footer {
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .cta-box {
+    padding: 5rem 2rem;
+  }
+
   .cta-input-group {
     flex-direction: column;
   }
-  
-  .lead-text {
-    font-size: 1.5rem;
-  }
-  
-  .hero-content h1 {
-    font-size: 3.5rem;
+
+  .cta-box h2 {
+    font-size: 2.8rem;
   }
 }
