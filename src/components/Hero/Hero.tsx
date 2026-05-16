@@ -7,24 +7,24 @@ const Hero: React.FC = () => {
   return (
     <section className="hero">
       <div className="container hero-content">
-        <div className="hero-text">
-          <h1 className="glitch-text">WEAR <br /> WHATEVER <br /><span className="highlight">YOU WANT</span></h1>
-          <p>The ultimate destination for premium football kits in Bangladesh. From the pitch to the streets, represent your team with our elite Player and Fan editions.</p>
-          <div className="hero-btns">
-            <button className="btn-primary" onClick={() => navigate('/shop')}>SHOP JERSEYS</button>
+        <div className="hero-main">
+          <div className="hero-badge">OFFICIAL 1:1 ELITE PROTOCOL</div>
+          <h1 className="hero-title">
+            WEAR <span className="highlight">YOUR GAME</span>
+          </h1>
+          <p className="hero-subtitle">
+            Experience the pinnacle of football engineering. Authenticity in every fiber, 
+            designed for those who command the pitch and the streets.
+          </p>
+          <div className="hero-actions">
+            <button className="btn-primary" onClick={() => navigate('/shop')}>EXPLORE SHOP</button>
             <button className="btn-secondary" onClick={() => navigate('/shop')}>LATEST DROPS</button>
           </div>
         </div>
-        <div className="hero-visual">
-          <div className="visual-box">
-            <img
-              src="/messi_kisses_cup.jpg"
-              alt="Messi World Cup Celebration"
-              className="hero-img"
-              loading="lazy"
-            />          </div>
-          <div className="visual-accent"></div>
-        </div>
+      </div>
+      <div className="hero-background-effects">
+        <div className="effect-blob blob-1"></div>
+        <div className="effect-blob blob-2"></div>
       </div>
     </section>
   );

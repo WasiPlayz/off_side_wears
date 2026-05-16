@@ -54,16 +54,17 @@ const App: React.FC = () => {
             <Route path="/" element={
               <>
                 <Hero />
-                <section className="featured container">
-                  <h2 style={{ marginBottom: '3rem' }}>FEATURED <span className="highlight">DROPS</span></h2>
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-                    gap: '2rem' 
-                  }}>
-                    {globalProducts.slice(0, 3).map((product) => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
+                <section className="featured-drops">
+                  <div className="container">
+                    <div className="section-header">
+                      <div className="section-badge">CURRENT ARCHIVE</div>
+                      <h2 className="section-title">ELITE <span className="highlight">DROPS</span></h2>
+                    </div>
+                    <div className="drops-grid">
+                      {globalProducts.slice(0, 3).map((product) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                    </div>
                   </div>
                 </section>
               </>
