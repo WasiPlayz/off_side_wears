@@ -5,10 +5,9 @@ interface AdminInventoryProps {
   products: Product[];
   onEdit: (product: Product) => void;
   onDelete: (id: number) => Promise<void>;
-  onSeed: () => Promise<void>;
 }
 
-const AdminInventory: React.FC<AdminInventoryProps> = ({ products, onEdit, onDelete, onSeed }) => {
+const AdminInventory: React.FC<AdminInventoryProps> = ({ products, onEdit, onDelete }) => {
   return (
     <div className="admin-inventory-section">
       <div className="admin-section-header">
@@ -16,9 +15,6 @@ const AdminInventory: React.FC<AdminInventoryProps> = ({ products, onEdit, onDel
           <h2>PRODUCT INVENTORY</h2>
           <p style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 700 }}>{products.length} ITEMS TOTAL</p>
         </div>
-        <button onClick={onSeed} style={{ padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.05)', color: '#64748b', border: '1px solid #222', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '1px' }}>
-          SEED INITIAL DATA
-        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>

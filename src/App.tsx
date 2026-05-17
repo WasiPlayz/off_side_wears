@@ -5,7 +5,6 @@ import Footer from './components/Footer/Footer';
 import Cart from './components/Cart/Cart';
 import ScrollToTop from './components/ScrollToTop';
 import ProductCard from './components/ProductCard/ProductCard';
-import { products as localProducts } from './data/products';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Product } from './types';
@@ -24,7 +23,7 @@ const TrackOrder = lazy(() => import('./pages/TrackOrder'));
 
 const App: React.FC = () => {
   const [lastOrderTracking, setLastOrderTracking] = useState('');
-  const [globalProducts, setGlobalProducts] = useState<Product[]>(localProducts);
+  const [globalProducts, setGlobalProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
 
   useEffect(() => {

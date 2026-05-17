@@ -71,7 +71,8 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
     setPromoError('');
     
     try {
-      const promoId = promoInput.toUpperCase().replace(/\s+/g, '_');
+      const cleanInput = promoInput.trim().toUpperCase().replace(/\s+/g, '_');
+      const promoId = cleanInput;
       const promoDoc = await getDoc(doc(db, 'promocodes', promoId));
       
       if (promoDoc.exists()) {
@@ -100,6 +101,13 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
       setPromoError('SYSTEM ERROR. FAILED TO VALIDATE PROMO.');
     } finally {
       setIsApplyingPromo(false);
+    }
+  };
+
+  const handlePromoKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleApplyPromo();
     }
   };
 
@@ -400,7 +408,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
                     <div style={{ background: '#000', padding: '1.5rem', border: '1px dashed var(--accent-color)', marginBottom: '2rem', textAlign: 'center' }}>
                       <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginBottom: '0.5rem' }}>SEND MONEY TO:</span>
                       <strong style={{ color: 'var(--accent-color)', letterSpacing: '3px', fontSize: '1.4rem' }}>
-                        {mobileBanking === 'rocket' ? '016094765878' : '01609476587'}
+                        {mobileBanking === 'rocket' ? '016094765878' : '01893460038'}
                       </strong>
                     </div>
 
@@ -451,6 +459,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
                   placeholder="ENTER CODE" 
                   value={promoInput}
                   onChange={e => setPromoInput(e.target.value)}
+                  onKeyDown={handlePromoKeyDown}
                   style={{ flex: 1, padding: '0.8rem', background: '#000', border: '1px solid #222', fontSize: '0.8rem' }}
                 />
                 <button 

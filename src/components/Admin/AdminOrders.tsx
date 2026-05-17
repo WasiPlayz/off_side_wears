@@ -26,21 +26,31 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, updateStatus }) => {
 
       {orders.map(order => (
         <div key={order.id} className="admin-card">
-          <div className="admin-card-header" style={{ padding: '1.5rem 2rem' }}>
-            <div>
+          <div className="admin-card-header" style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ minWidth: '200px' }}>
               <h3 style={{ color: 'var(--white)', margin: 0, fontSize: '1rem' }}>#OFF-{order.trackingNumber || 'PENDING'}</h3>
               <p style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.3rem' }}>
                 ID: {order.id} • {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString() : 'RECENT'}
               </p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-              <span className={`status-pill status-${order.status}`}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <span className={`status-pill status-${order.status}`} style={{ whiteSpace: 'nowrap' }}>
                 {order.status}
               </span>
               <select 
                 value={order.status}
                 onChange={(e) => updateStatus(order.id, e.target.value)}
-                style={{ background: '#000', color: '#fff', padding: '0.5rem 1rem', border: '1px solid #222', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800 }}
+                style={{ 
+                  background: '#000', 
+                  color: '#fff', 
+                  padding: '0.5rem', 
+                  border: '1px solid #222', 
+                  borderRadius: '4px', 
+                  fontSize: '0.75rem', 
+                  fontWeight: 800,
+                  minWidth: '120px',
+                  cursor: 'pointer'
+                }}
               >
                 <option value="pending">PENDING</option>
                 <option value="processing">PROCESSING</option>

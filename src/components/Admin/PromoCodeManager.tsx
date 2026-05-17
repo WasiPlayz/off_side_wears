@@ -47,10 +47,11 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({ products }) => {
 
     setLoading(true);
     try {
-      const promoId = code.toUpperCase().replace(/\s+/g, '_');
+      const trimmedCode = code.trim();
+      const promoId = trimmedCode.toUpperCase().replace(/\s+/g, '_');
       const newPromo: PromoCode = {
         id: promoId,
-        code: code.toUpperCase(),
+        code: trimmedCode.toUpperCase(),
         discount,
         type,
         productIds: type === 'product' ? selectedProductIds : [],

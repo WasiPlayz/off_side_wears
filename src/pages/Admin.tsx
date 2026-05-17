@@ -3,7 +3,6 @@ import { collection, query, orderBy, getDocs, updateDoc, doc, setDoc, deleteDoc 
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { db, auth } from '../firebase';
-import { products as localProducts } from '../data/products';
 import type { Product, Order } from '../types';
 import AdminOrders from '../components/Admin/AdminOrders';
 import AdminInventory from '../components/Admin/AdminInventory';
@@ -160,23 +159,6 @@ const Admin: React.FC = () => {
     }
   };
 
-  const seedProducts = async () => {
-    if (!window.confirm("Seed database with local products? This will overwrite existing IDs.")) return;
-    setLoading(true);
-    try {
-      for (const p of localProducts) {
-        await setDoc(doc(db, 'products', String(p.id)), { ...p, inStock: true });
-      }
-      alert("Database seeded successfully!");
-      fetchProducts();
-    } catch (error) {
-      console.error("Seed error", error);
-      alert("Failed to seed database.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="admin-login-container container">
@@ -275,7 +257,6 @@ const Admin: React.FC = () => {
                   products={productsList} 
                   onEdit={handleEditClick} 
                   onDelete={handleDeleteProduct} 
-                  onSeed={seedProducts} 
                 />
               </div>
             )}

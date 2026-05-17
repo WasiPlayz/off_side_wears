@@ -173,29 +173,56 @@
   list-style: none;
   text-align: center;
   padding: 0;
+  width: 100%;
+  max-width: 300px;
 }
 
 .mobile-nav-links li {
-  margin: 1.5rem 0;
+  margin: 2rem 0;
 }
 
 .mobile-nav-btn {
   background: none;
   border: none;
   color: var(--text-color);
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 8vw, 2rem);
   font-weight: 900;
   letter-spacing: 4px;
   cursor: pointer;
   transition: color 0.3s ease;
+  text-transform: uppercase;
 }
 
 .mobile-nav-btn:hover {
   color: var(--accent-color);
 }
 
-/* Ensure theme toggle inside mobile menu is visible */
+/* Ensure theme toggle inside mobile menu is visible and sized correctly */
 .mobile-nav-links .theme-toggle {
   color: var(--secondary-accent);
   border-color: var(--secondary-accent);
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 1rem 0;
+  }
+  
+  .logo {
+    font-size: 1.2rem;
+  }
+  
+  .nav-actions {
+    gap: 0.8rem;
+  }
+  
+  .cart-btn, .theme-toggle {
+    padding: 0.6rem 1rem;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+  }
 }

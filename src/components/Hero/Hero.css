@@ -24,7 +24,7 @@
 }
 
 .hero-badge {
-  font-size: 0.7rem;
+  font-size: clamp(0.6rem, 2vw, 0.7rem);
   font-weight: 900;
   letter-spacing: 4px;
   color: var(--accent-color);
@@ -37,7 +37,7 @@
 }
 
 .hero-title {
-  font-size: 7rem;
+  font-size: clamp(3rem, 15vw, 7rem);
   line-height: 1;
   margin: 0;
   font-weight: 900;
@@ -45,7 +45,7 @@
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
+  font-size: clamp(0.9rem, 3vw, 1.2rem);
   font-weight: 500;
   max-width: 600px;
   color: var(--text-color);
@@ -72,8 +72,8 @@
 
 .effect-blob {
   position: absolute;
-  width: 500px;
-  height: 500px;
+  width: min(500px, 80vw);
+  height: min(500px, 80vw);
   border-radius: 50%;
   filter: blur(120px);
   opacity: 0.15;
@@ -106,34 +106,40 @@
 
 /* Responsive */
 @media (max-width: 992px) {
-  .hero-title {
-    font-size: 5rem;
+  .hero-content {
+    padding: 0 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 3.5rem;
+  .hero {
+    min-height: calc(100vh - 70px);
   }
-  
-  .hero-subtitle {
-    font-size: 1rem;
+
+  .hero-main {
+    gap: 1.2rem;
   }
 
   .hero-actions {
     flex-direction: column;
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;
+    gap: 1rem;
+  }
+
+  .btn-primary, .btn-secondary {
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
   .hero-title {
-    font-size: 2.8rem;
+    letter-spacing: -1px;
   }
   
   .hero-badge {
-    font-size: 0.6rem;
+    padding: 0.5rem 1.2rem;
     letter-spacing: 2px;
   }
 }
+

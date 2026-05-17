@@ -37,7 +37,7 @@ section {
 }
 
 .section-badge {
-  font-size: 0.6rem;
+  font-size: clamp(0.5rem, 2vw, 0.6rem);
   font-weight: 900;
   letter-spacing: 3px;
   color: var(--accent-color);
@@ -45,7 +45,7 @@ section {
 }
 
 .section-title {
-  font-size: 3.5rem;
+  font-size: clamp(2rem, 8vw, 3.5rem);
   font-weight: 900;
   margin: 0;
 }
@@ -59,20 +59,18 @@ section {
 @media (max-width: 992px) {
   .drops-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
 }
 
 @media (max-width: 600px) {
   .drops-grid {
     grid-template-columns: 1fr;
-  }
-  
-  .section-title {
-    font-size: 2.5rem;
+    gap: 1.5rem;
   }
   
   .featured-drops {
-    padding: 4rem 0;
+    padding: 3rem 0;
   }
 }
 
@@ -88,6 +86,12 @@ section {
   flex-direction: column;
   justify-content: flex-end;
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .product-card-home {
+    height: 400px;
+  }
 }
 
 .product-card-home:hover {
@@ -118,6 +122,12 @@ section {
   background: linear-gradient(0deg, rgba(10,5,24,0.95) 0%, rgba(10,5,24,0) 100%);
 }
 
+@media (max-width: 480px) {
+  .card-info {
+    padding: 1.5rem;
+  }
+}
+
 .card-tag {
   background: var(--accent-color);
   color: #fff;
@@ -130,7 +140,7 @@ section {
 }
 
 .card-name {
-  font-size: 1.4rem;
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
   color: var(--white);
   margin-bottom: 0.5rem;
   font-weight: 900;
@@ -172,6 +182,7 @@ section {
   letter-spacing: 1px;
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
 }
 
 .btn-primary:hover {
@@ -189,6 +200,7 @@ section {
   border-radius: 50px;
   letter-spacing: 1px;
   transition: all 0.3s ease;
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
 }
 
 .btn-secondary:hover {
@@ -235,23 +247,23 @@ section {
 /* Responsive Utilities */
 @media (max-width: 768px) {
   .container {
-    padding: 0 1rem;
+    padding: 0 1.5rem;
   }
   
   section {
-    padding: 2rem 0;
+    padding: 3rem 0;
   }
 
   .btn-primary, .btn-secondary {
-    padding: 0.8rem 1.2rem;
-    font-size: 0.8rem;
+    padding: 1rem 1.8rem;
   }
-
-  h1 { font-size: 2.2rem; }
-  h2 { font-size: 1.5rem; }
 }
 
 @media (max-width: 480px) {
-  h1 { font-size: 1.8rem; }
-  section { padding: 1.5rem 0; }
+  section { padding: 2rem 0; }
+  
+  .container {
+    padding: 0 1.25rem;
+  }
 }
+
