@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebas
 import type { User } from 'firebase/auth';
 import { db, auth } from '../firebase';
 import type { Product, Order } from '../types';
+import { useToast } from '../context/ToastContext';
 import AdminOrders from '../components/Admin/AdminOrders';
 import AdminInventory from '../components/Admin/AdminInventory';
 import ProductForm from '../components/Admin/ProductForm';
@@ -16,6 +17,7 @@ const Admin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'coupons'>('orders');
   
+  const { showToast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [productsList, setProductsList] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,9 +79,10 @@ const Admin: React.FC = () => {
     setIsProcessing(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      showToast('ADMIN ACCESS GRANTED', 'success');
     } catch (error) {
       console.error("Login failed", error);
-      alert('AUTHENTICATION FAILED: INVALID CREDENTIALS');
+      showToast('AUTHENTICATION FAILED: INVALID CREDENTIALS', 'error');
     } finally {
       setIsProcessing(false);
     }
@@ -88,6 +91,7 @@ const Admin: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      showToast('SECURE LOGOUT COMPLETE', 'info');
     } catch (error) {
       console.error("Logout failed", error);
     }
@@ -122,12 +126,12 @@ const Admin: React.FC = () => {
 
       await setDoc(doc(db, 'products', String(productId)), finalProduct);
       
-      alert(editingProduct ? "Product updated!" : "Product published!");
+      showToast(editingProduct ? "PRODUCT UPDATED" : "PRODUCT PUBLISHED", 'success');
       setEditingProduct(null);
       fetchProducts();
     } catch (error) {
       console.error("Error saving product", error);
-      alert("Failed to save product.");
+      showToast("FAILED TO SAVE PRODUCT", 'error');
     } finally {
       setLoading(false);
     }
@@ -139,7 +143,7 @@ const Admin: React.FC = () => {
     try {
       await deleteDoc(doc(db, 'products', String(id)));
       fetchProducts();
-      alert("Product deleted.");
+      showToast("PRODUCT DELETED", 'success');
     } catch (error) {
       console.error("Error deleting product", error);
     } finally {
@@ -153,9 +157,10 @@ const Admin: React.FC = () => {
         status: newStatus
       });
       setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+      showToast(`STATUS UPDATED: ${newStatus.toUpperCase()}`, 'success');
     } catch (error) {
       console.error("Error updating status: ", error);
-      alert("Failed to update status.");
+      showToast("FAILED TO UPDATE STATUS", 'error');
     }
   };
 
@@ -253,7 +258,8 @@ const Admin: React.FC = () => {
                   editingProduct={editingProduct} 
                   onSave={handleSaveProduct} 
                   onCancel={() => setEditingProduct(null)} 
-                />                <AdminInventory 
+                />
+                <AdminInventory 
                   products={productsList} 
                   onEdit={handleEditClick} 
                   onDelete={handleDeleteProduct} 

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Product, Review, Order } from '../types';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 import './ProductDetails.css';
 
 interface ProductDetailsProps {
@@ -15,6 +16,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { showToast } = useToast();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -35,16 +37,25 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
     if (!id) return;
     setLoadingReviews(true);
     try {
+      // Fetching without complex ordering first to avoid index errors in mobile browsers
       const q = query(
         collection(db, 'reviews'),
-        where('productId', '==', parseInt(id)),
-        orderBy('createdAt', 'desc')
+        where('productId', '==', parseInt(id))
       );
+      
       const querySnapshot = await getDocs(q);
       const fetchedReviews = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Review[];
+
+      // Sort manually in JS to ensure it works even if Firebase index isn't ready
+      fetchedReviews.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis?.() || 0;
+        const timeB = b.createdAt?.toMillis?.() || 0;
+        return timeB - timeA;
+      });
+
       setReviews(fetchedReviews);
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -90,7 +101,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        alert('LINK COPIED TO CLIPBOARD');
+        showToast('LINK COPIED TO CLIPBOARD', 'success');
       }
     } catch (err) {
       console.error('Share failed', err);
@@ -124,16 +135,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
   const handleAddToCart = () => {
     if (!isInStock) return;
     if (!selectedSize) {
-      alert('Please select a size first.');
+      showToast('PLEASE SELECT A SIZE FIRST', 'error');
       return;
     }
     addToCart(product, selectedSize);
+    showToast('ADDED TO CART', 'success');
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewName || !reviewText || !reviewTracking) {
-      alert("Please fill in all fields.");
+      showToast('PLEASE FILL IN ALL FIELDS', 'error');
       return;
     }
 
@@ -148,7 +160,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
-        alert("Invalid Tracking Number or Order not yet completed. Only completed orders can be reviewed.");
+        showToast('INVALID TRACKING OR ORDER NOT COMPLETED', 'error');
         setIsSubmittingReview(false);
         return;
       }
@@ -157,7 +169,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
       const productInOrder = orderData.items.some((item: { id: number }) => item.id === product.id);
 
       if (!productInOrder) {
-        alert("This product was not found in the order provided.");
+        showToast('PRODUCT NOT FOUND IN THIS ORDER', 'error');
         setIsSubmittingReview(false);
         return;
       }
@@ -171,7 +183,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
         createdAt: serverTimestamp()
       });
 
-      alert("Review posted successfully!");
+      showToast('REVIEW POSTED SUCCESSFULLY', 'success');
       setReviewName('');
       setReviewText('');
       setReviewTracking('');
@@ -179,7 +191,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
       fetchReviews();
     } catch (error) {
       console.error("Error posting review:", error);
-      alert("System Error: Unable to post review.");
+      showToast('SYSTEM ERROR: UNABLE TO POST REVIEW', 'error');
     } finally {
       setIsSubmittingReview(false);
     }
@@ -421,34 +433,34 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
         </div>
 
         {showReviewForm && (
-          <div className="review-form-container" style={{ background: '#111', padding: '2rem', border: '1px solid #333', marginBottom: '4rem', maxWidth: '600px' }}>
-            <h3 style={{ marginBottom: '1.5rem', color: 'var(--accent-color)' }}>PRODUCT REVIEW</h3>
+          <div className="review-form-container" style={{ background: '#111', padding: '2rem', border: '1px solid #333', marginBottom: '4rem', maxWidth: '600px', borderRadius: '12px' }}>
+            <h3 style={{ marginBottom: '1.5rem', color: 'var(--accent-color)', fontSize: '0.8rem', letterSpacing: '2px' }}>PRODUCT REVIEW</h3>
             <form onSubmit={handleSubmitReview}>
               <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem', color: '#888' }}>NAME</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 900, letterSpacing: '1px' }}>NAME</label>
                 <input 
                   type="text" 
                   placeholder="YOUR NAME" 
                   value={reviewName}
                   onChange={e => setReviewName(e.target.value)}
-                  style={{ width: '100%', padding: '1rem', background: '#000', border: '1px solid #333', color: '#fff' }}
+                  style={{ width: '100%', padding: '1rem', background: '#000', border: '1px solid #222', color: '#fff', borderRadius: '8px' }}
                   required
                 />
               </div>
               <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem', color: '#888' }}>TRACKING NUMBER (VERIFICATION)</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 900, letterSpacing: '1px' }}>TRACKING NUMBER (VERIFICATION)</label>
                 <input 
                   type="text" 
                   placeholder="#OFF-123456" 
                   value={reviewTracking}
                   onChange={e => setReviewTracking(e.target.value)}
-                  style={{ width: '100%', padding: '1rem', background: '#000', border: '1px solid #333', color: '#fff' }}
+                  style={{ width: '100%', padding: '1rem', background: '#000', border: '1px solid #222', color: '#fff', borderRadius: '8px' }}
                   required
                 />
-                <p style={{ fontSize: '0.7rem', color: 'var(--accent-color)', marginTop: '0.5rem' }}>Only completed orders can leave reviews.</p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--accent-color)', marginTop: '0.5rem', fontWeight: 700 }}>ONLY COMPLETED ORDERS CAN LEAVE REVIEWS.</p>
               </div>
               <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem', color: '#888' }}>RATING</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 900, letterSpacing: '1px' }}>RATING</label>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   {[1, 2, 3, 4, 5].map(num => (
                     <button 
@@ -457,12 +469,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
                       onClick={() => setReviewRating(num)}
                       style={{ 
                         flex: 1, 
-                        padding: '0.5rem', 
-                        background: reviewRating >= num ? 'var(--accent-color)' : '#222',
-                        border: 'none',
+                        padding: '0.8rem', 
+                        background: reviewRating >= num ? 'var(--accent-color)' : '#000',
+                        border: '1px solid #222',
                         color: '#fff',
                         cursor: 'pointer',
-                        fontWeight: 'bold'
+                        fontWeight: '900',
+                        borderRadius: '8px',
+                        transition: 'all 0.3s ease'
                       }}
                     >
                       {num} ★
@@ -471,13 +485,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
                 </div>
               </div>
               <div className="form-group" style={{ marginBottom: '2rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem', color: '#888' }}>YOUR THOUGHTS</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 900, letterSpacing: '1px' }}>YOUR THOUGHTS</label>
                 <textarea 
                   rows={4}
                   placeholder="HOW DOES IT FEEL?" 
                   value={reviewText}
                   onChange={e => setReviewText(e.target.value)}
-                  style={{ width: '100%', padding: '1rem', background: '#000', border: '1px solid #333', color: '#fff', resize: 'none' }}
+                  style={{ width: '100%', padding: '1rem', background: '#000', border: '1px solid #222', color: '#fff', resize: 'none', borderRadius: '8px' }}
                   required
                 ></textarea>
               </div>
@@ -490,19 +504,49 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
 
         <div className="reviews-list" style={{ display: 'grid', gap: '2rem' }}>
           {loadingReviews ? (
-            <p>SYNCING REVIEWS...</p>
+            <p className="loading-screen" style={{ height: 'auto', fontSize: '0.8rem' }}>SYNCING REVIEWS...</p>
           ) : reviews.length === 0 ? (
-            <p style={{ color: '#666', fontStyle: 'italic' }}>NO REVIEWS FOR THIS PRODUCT YET. BE THE FIRST TO DROP ONE.</p>
+            <div style={{ textAlign: 'center', padding: '4rem', background: '#0a0a0a', border: '1px dashed #222', borderRadius: '12px' }}>
+              <p style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.9rem' }}>NO REVIEWS FOR THIS PRODUCT YET. BE THE FIRST TO DROP ONE.</p>
+            </div>
           ) : (
             reviews.map(review => (
-              <div key={review.id} className="review-card" style={{ borderLeft: '3px solid var(--accent-color)', paddingLeft: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid #111' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <h4 style={{ margin: 0, letterSpacing: '1px' }}>{review.userName.toUpperCase()}</h4>
-                  <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>{'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}</span>
+              <div key={review.id} className="review-card" style={{ 
+                background: '#0a0a0a', 
+                padding: '2rem', 
+                borderRadius: '12px', 
+                border: '1px solid #1a1a1a',
+                transition: 'all 0.3s ease'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <h4 style={{ margin: 0, letterSpacing: '2px', color: '#fff', fontSize: '1rem', fontWeight: 900 }}>{review.userName.toUpperCase()}</h4>
+                    <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '0.3rem 0 0 0', fontWeight: 800 }}>
+                      {review.createdAt?.toDate ? review.createdAt.toDate().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'RECENT'}
+                    </p>
+                  </div>
+                  <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '0.5rem 1rem', borderRadius: '100px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                    <span style={{ color: 'var(--accent-color)', fontWeight: '900', letterSpacing: '2px', fontSize: '0.7rem' }}>
+                      {'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}
+                    </span>
+                  </div>
                 </div>
-                <p style={{ fontSize: '0.9rem', color: '#888', marginBottom: '1rem' }}>{review.createdAt?.toDate ? review.createdAt.toDate().toLocaleDateString() : 'Recent'}</p>
-                <p style={{ color: '#ccc', lineHeight: '1.6' }}>{review.comment}</p>
-                <div style={{ marginTop: '0.5rem', fontSize: '0.7rem', color: 'var(--accent-color)', fontWeight: 'bold' }}>VERIFIED PURCHASE</div>
+                <p style={{ color: '#ccc', lineHeight: '1.8', fontSize: '0.95rem', margin: '0 0 1.5rem 0' }}>{review.comment}</p>
+                <div style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '0.5rem', 
+                  fontSize: '0.6rem', 
+                  color: '#4ade80', 
+                  fontWeight: '900', 
+                  letterSpacing: '1px',
+                  background: 'rgba(74, 222, 128, 0.1)',
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '4px'
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  VERIFIED PURCHASE
+                </div>
               </div>
             ))
           )}

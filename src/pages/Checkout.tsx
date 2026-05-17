@@ -5,6 +5,7 @@ import emailjs from '@emailjs/browser';
 import { db } from '../firebase';
 import { districts, thanas } from '../data/bd-data';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 import type { PromoCode } from '../types';
 import './Checkout.css';
 
@@ -15,6 +16,7 @@ interface CheckoutProps {
 const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
   const navigate = useNavigate();
   const { cart, clearCart } = useCart();
+  const { showToast } = useToast();
   
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -103,13 +105,14 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
 
         setAppliedPromo(promoData);
         setPromoInput('');
+        showToast('PROMO CODE APPLIED', 'success');
       } else {
         setPromoError('INVALID PROMO CODE. PLEASE CHECK AND TRY AGAIN.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error applying promo", err);
       // Include the error code to help identify if it's a network, permission, or other issue
-      const errorCode = err.code || 'UNKNOWN';
+      const errorCode = (err as { code?: string })?.code || 'UNKNOWN';
       setPromoError(`SYSTEM ERROR (${errorCode}). FAILED TO VALIDATE PROMO.`);
     } finally {
       setIsApplyingPromo(false);
@@ -125,6 +128,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
 
   const removePromo = () => {
     setAppliedPromo(null);
+    showToast('PROMO CODE REMOVED', 'info');
   };
 
   const availableThanas = thanas[district] || ["Sadar", "Other"];
@@ -132,7 +136,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
   const uploadImageToImgBB = async (imageFile: File) => {
     const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
     if (!apiKey) {
-      alert("System Error: ImgBB API key is missing. Ensure VITE_IMGBB_API_KEY is set in Vercel.");
+      showToast("SYSTEM ERROR: IMGBB KEY MISSING", 'error');
       return '';
     }
 
@@ -148,10 +152,10 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
       if (data.success) {
         return data.data.url;
       }
-      alert("ImgBB Upload Failed: " + (data.error?.message || "Unknown error"));
+      showToast("IMAGE UPLOAD FAILED", 'error');
       return '';
     } catch (err) {
-      alert("Network Error during image upload.");
+      showToast("NETWORK ERROR DURING UPLOAD", 'error');
       console.error("Image upload failed", err);
       return '';
     }
@@ -162,15 +166,15 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
     if (cart.length === 0) return;
     
     if (!paymentMethod) {
-      alert("Please select a payment method.");
+      showToast("PLEASE SELECT PAYMENT METHOD", 'error');
       return;
     }
     if (!mobileBanking) {
-      alert("Please select a mobile banking option.");
+      showToast("PLEASE SELECT BANKING OPTION", 'error');
       return;
     }
     if (!transactionId) {
-      alert("Please enter your Transaction ID.");
+      showToast("PLEASE ENTER TRANSACTION ID", 'error');
       return;
     }
 
@@ -287,11 +291,12 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
       clearCart();
       setIsSubmitting(false);
       onComplete(generatedTrackingNumber);
+      showToast('ORDER TRANSMITTED SUCCESSFULLY', 'success');
       navigate('/success');
 
     } catch (error) {
       console.error("Error adding document: ", error);
-      alert("Failed to submit order. Please check your internet connection or try again later.");
+      showToast("FAILED TO SUBMIT ORDER", 'error');
       setIsSubmitting(false);
     }
   };
