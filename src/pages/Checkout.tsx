@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc, serverTimestamp, getDocs, query, where, doc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import emailjs from '@emailjs/browser';
 import { db } from '../firebase';
 import { districts, thanas } from '../data/bd-data';
