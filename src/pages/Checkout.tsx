@@ -71,8 +71,15 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
     setPromoError('');
     
     try {
-      const cleanInput = promoInput.trim().toUpperCase().replace(/\s+/g, '_');
+      // Aggressive cleaning: trim, uppercase, replace all non-alphanumeric with underscore, collapse multiple underscores
+      const cleanInput = promoInput.trim().toUpperCase().replace(/[^A-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
       const promoId = cleanInput;
+      
+      if (!promoId) {
+        setPromoError('PLEASE ENTER A VALID CODE.');
+        return;
+      }
+
       const promoDoc = await getDoc(doc(db, 'promocodes', promoId));
       
       if (promoDoc.exists()) {
