@@ -17,8 +17,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Services with long-polling for better compatibility in in-app browsers
+// Initialize Services with settings for better compatibility in in-app browsers
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
+  useFetchStreams: false,
 });
 export const auth = getAuth(app);

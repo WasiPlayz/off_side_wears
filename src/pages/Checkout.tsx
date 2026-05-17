@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc, serverTimestamp, getDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, where, doc } from 'firebase/firestore';
 import emailjs from '@emailjs/browser';
 import { db } from '../firebase';
 import { districts, thanas } from '../data/bd-data';
@@ -71,19 +71,22 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
     setPromoError('');
     
     try {
-      // Aggressive cleaning: trim, uppercase, replace all non-alphanumeric with underscore, collapse multiple underscores
+      // Aggressive cleaning: trim, uppercase, replace all non-alphanumeric with underscore
       const cleanInput = promoInput.trim().toUpperCase().replace(/[^A-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
-      const promoId = cleanInput;
       
-      if (!promoId) {
+      if (!cleanInput) {
         setPromoError('PLEASE ENTER A VALID CODE.');
         return;
       }
 
-      const promoDoc = await getDoc(doc(db, 'promocodes', promoId));
+      // Using query + getDocs instead of getDoc by ID for better compatibility
+      const q = query(collection(db, 'promocodes'), where('code', '==', cleanInput));
+      const querySnapshot = await getDocs(q);
       
-      if (promoDoc.exists()) {
+      if (!querySnapshot.empty) {
+        const promoDoc = querySnapshot.docs[0];
         const promoData = promoDoc.data() as PromoCode;
+        
         if (!promoData.active) {
           setPromoError('THIS PROMO CODE IS NO LONGER ACTIVE.');
           return;
@@ -103,9 +106,11 @@ const Checkout: React.FC<CheckoutProps> = ({ onComplete }) => {
       } else {
         setPromoError('INVALID PROMO CODE. PLEASE CHECK AND TRY AGAIN.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error applying promo", err);
-      setPromoError('SYSTEM ERROR. FAILED TO VALIDATE PROMO.');
+      // Include the error code to help identify if it's a network, permission, or other issue
+      const errorCode = err.code || 'UNKNOWN';
+      setPromoError(`SYSTEM ERROR (${errorCode}). FAILED TO VALIDATE PROMO.`);
     } finally {
       setIsApplyingPromo(false);
     }
