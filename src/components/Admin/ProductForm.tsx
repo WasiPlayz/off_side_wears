@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Product } from '../../types';
+import type { Product, SizeChartRow } from '../../types';
 
 interface ProductFormProps {
   editingProduct: Product | null;
@@ -24,6 +24,13 @@ const PRESET_SIZES = [
   'FREE SIZE'
 ];
 
+const DEFAULT_JERSEY_ROWS: SizeChartRow[] = [
+  { size: 'M', col1: '27', col2: '38' },
+  { size: 'L', col1: '28', col2: '40' },
+  { size: 'XL', col1: '29', col2: '42' },
+  { size: 'XXL', col1: '30', col2: '44' }
+];
+
 const ProductForm: React.FC<ProductFormProps> = ({ editingProduct, categories = [], onSave, onCancel }) => {
   const allCategories = Array.from(new Set([...DEFAULT_CATEGORIES, ...categories]));
 
@@ -44,6 +51,16 @@ const ProductForm: React.FC<ProductFormProps> = ({ editingProduct, categories = 
     editingProduct?.availableSizes || ['M', 'L', 'XL', 'XXL']
   );
   const [customSizeInput, setCustomSizeInput] = useState('');
+
+  // Size Chart Config State
+  const [chartEnabled, setChartEnabled] = useState(editingProduct?.sizeChart?.enabled !== false);
+  const [chartTitle, setChartTitle] = useState(editingProduct?.sizeChart?.title || 'INTERNATIONAL SIZE CHART (INCHES)');
+  const [col1Header, setCol1Header] = useState(editingProduct?.sizeChart?.col1Header || 'HEIGHT');
+  const [col2Header, setCol2Header] = useState(editingProduct?.sizeChart?.col2Header || 'CHEST');
+  const [chartRows, setChartRows] = useState<SizeChartRow[]>(
+    editingProduct?.sizeChart?.rows || DEFAULT_JERSEY_ROWS
+  );
+  const [chartNote, setChartNote] = useState(editingProduct?.sizeChart?.note || '');
 
   const toggleSize = (size: string) => {
     setAvailableSizes(prev => 
@@ -67,6 +84,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ editingProduct, categories = 
     setFeatures(updated);
   };
 
+  const handleAddChartRow = () => {
+    setChartRows([...chartRows, { size: '', col1: '', col2: '' }]);
+  };
+
+  const handleRemoveChartRow = (index: number) => {
+    setChartRows(chartRows.filter((_, i) => i !== index));
+  };
+
+  const handleChartRowChange = (index: number, field: keyof SizeChartRow, value: string) => {
+    const updated = [...chartRows];
+    updated[index] = { ...updated[index], [field]: value };
+    setChartRows(updated);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const filteredImages = images.filter(url => url.trim() !== '');
@@ -81,7 +112,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ editingProduct, categories = 
       description: description.trim(),
       features: filteredFeatures,
       images: filteredImages.length > 0 ? filteredImages : [img],
-      availableSizes
+      availableSizes,
+      sizeChart: {
+        enabled: chartEnabled,
+        title: chartTitle.trim(),
+        col1Header: col1Header.trim(),
+        col2Header: col2Header.trim(),
+        rows: chartRows.filter(r => r.size.trim() !== ''),
+        note: chartNote.trim()
+      }
     });
   };
 
@@ -187,6 +226,63 @@ const ProductForm: React.FC<ProductFormProps> = ({ editingProduct, categories = 
           )}
         </div>
 
+        {/* Dynamic Toggleable Size Chart Config */}
+        <div className="form-group full-row size-chart-box">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <label style={{ fontSize: '0.8rem', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.8rem', fontWeight: 900 }}>
+              <input 
+                type="checkbox" 
+                checked={chartEnabled} 
+                onChange={e => setChartEnabled(e.target.checked)} 
+                style={{ width: '20px', height: '20px', accentColor: 'var(--accent-color)' }}
+              />
+              DISPLAY SIZE CHART ON PRODUCT PAGE
+            </label>
+          </div>
+
+          {chartEnabled && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', marginTop: '1rem', background: '#080808', padding: '1.2rem', border: '1px solid #1a1a1a', borderRadius: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 900, marginBottom: '0.4rem', display: 'block' }}>CHART TITLE</label>
+                  <input type="text" placeholder="INTERNATIONAL SIZE CHART" value={chartTitle} onChange={e=>setChartTitle(e.target.value)} className="admin-input" style={{ fontSize: '0.75rem' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 900, marginBottom: '0.4rem', display: 'block' }}>COLUMN 1 HEADER</label>
+                  <input type="text" placeholder="e.g. HEIGHT or WAIST" value={col1Header} onChange={e=>setCol1Header(e.target.value)} className="admin-input" style={{ fontSize: '0.75rem' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 900, marginBottom: '0.4rem', display: 'block' }}>COLUMN 2 HEADER</label>
+                  <input type="text" placeholder="e.g. CHEST or LENGTH" value={col2Header} onChange={e=>setCol2Header(e.target.value)} className="admin-input" style={{ fontSize: '0.75rem' }} />
+                </div>
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                  <label style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 900 }}>CUSTOM MEASUREMENT ROWS</label>
+                  <button type="button" onClick={handleAddChartRow} style={{ padding: '0.4rem 0.8rem', background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-color)', border: '1px solid rgba(59, 130, 246, 0.2)', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 900, borderRadius: '4px' }}>+ ADD ROW</button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  {chartRows.map((row, idx) => (
+                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '0.5rem', alignItems: 'center' }}>
+                      <input type="text" placeholder="Size (e.g. M / 30)" value={row.size} onChange={e => handleChartRowChange(idx, 'size', e.target.value)} className="admin-input" style={{ fontSize: '0.75rem' }} />
+                      <input type="text" placeholder={`${col1Header || 'Col 1'} val`} value={row.col1 || ''} onChange={e => handleChartRowChange(idx, 'col1', e.target.value)} className="admin-input" style={{ fontSize: '0.75rem' }} />
+                      <input type="text" placeholder={`${col2Header || 'Col 2'} val`} value={row.col2 || ''} onChange={e => handleChartRowChange(idx, 'col2', e.target.value)} className="admin-input" style={{ fontSize: '0.75rem' }} />
+                      <button type="button" onClick={() => handleRemoveChartRow(idx)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '0.6rem', cursor: 'pointer', borderRadius: '4px', lineHeight: 1 }}>×</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 900, marginBottom: '0.4rem', display: 'block' }}>FIT NOTE / ADVICE</label>
+                <input type="text" placeholder="e.g. *Slim fit. Order one size up for a relaxed fit." value={chartNote} onChange={e=>setChartNote(e.target.value)} className="admin-input" style={{ fontSize: '0.75rem' }} />
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Custom Description & Features */}
         <div className="form-group full-row product-desc-box">
           <label style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 900, marginBottom: '0.5rem', display: 'block' }}>CUSTOM PRODUCT DESCRIPTION</label>
@@ -265,7 +361,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ editingProduct, categories = 
         .full-row {
           grid-column: span 2;
         }
-        .stock-toggle, .size-avail, .product-desc-box, .feature-urls, .gallery-urls {
+        .stock-toggle, .size-avail, .size-chart-box, .product-desc-box, .feature-urls, .gallery-urls {
           background: #000;
           padding: 1.2rem;
           border: 1px solid #111;

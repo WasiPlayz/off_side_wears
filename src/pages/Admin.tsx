@@ -140,7 +140,8 @@ const Admin: React.FC = () => {
         description: productData.description || '',
         features: productData.features || [],
         images: productData.images,
-        availableSizes: productData.availableSizes
+        availableSizes: productData.availableSizes,
+        sizeChart: productData.sizeChart
       };
 
       await setDoc(doc(db, 'products', String(productId)), finalProduct);

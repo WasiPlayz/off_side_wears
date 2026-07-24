@@ -11,6 +11,22 @@ export interface Product {
   images?: string[];
   inStock?: boolean;
   availableSizes?: string[];
+  sizeChart?: SizeChartConfig;
+}
+
+export interface SizeChartRow {
+  size: string;
+  col1?: string;
+  col2?: string;
+}
+
+export interface SizeChartConfig {
+  enabled: boolean;
+  title?: string;
+  col1Header?: string;
+  col2Header?: string;
+  rows?: SizeChartRow[];
+  note?: string;
 }
 
 export interface CategoryItem {

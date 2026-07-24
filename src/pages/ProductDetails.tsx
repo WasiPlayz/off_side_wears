@@ -381,37 +381,51 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
             {isInStock ? 'ADD TO CART' : 'CURRENTLY UNAVAILABLE'}
           </button>
 
-          <div className="size-chart-section">
-            <h3>INTERNATIONAL SIZE CHART (INCHES)</h3>
-            <div className="chart-text">
-              <div className="chart-row header">
-                <span>SIZE</span>
-                <span>HEIGHT</span>
-                <span>CHEST</span>
+          {/* Dynamic Toggleable Custom Size Chart */}
+          {(product.sizeChart?.enabled !== false) && (
+            <div className="size-chart-section">
+              <h3>{(product.sizeChart?.title || 'INTERNATIONAL SIZE CHART (INCHES)').toUpperCase()}</h3>
+              <div className="chart-text">
+                <div className="chart-row header">
+                  <span>SIZE</span>
+                  <span>{(product.sizeChart?.col1Header || (product.category?.toUpperCase().includes('TROUSER') ? 'WAIST' : 'HEIGHT')).toUpperCase()}</span>
+                  <span>{(product.sizeChart?.col2Header || (product.category?.toUpperCase().includes('TROUSER') ? 'LENGTH' : 'CHEST')).toUpperCase()}</span>
+                </div>
+
+                {(product.sizeChart?.rows && product.sizeChart.rows.length > 0) ? (
+                  product.sizeChart.rows.map((row, idx) => (
+                    <div key={idx} className="chart-row">
+                      <span>{row.size}</span>
+                      <span>{row.col1 || '-'}</span>
+                      <span>{row.col2 || '-'}</span>
+                    </div>
+                  ))
+                ) : product.category?.toUpperCase().includes('TROUSER') ? (
+                  <>
+                    <div className="chart-row"><span>28</span><span>28"</span><span>38"</span></div>
+                    <div className="chart-row"><span>30</span><span>30"</span><span>39"</span></div>
+                    <div className="chart-row"><span>32</span><span>32"</span><span>40"</span></div>
+                    <div className="chart-row"><span>34</span><span>34"</span><span>41"</span></div>
+                    <div className="chart-row"><span>36</span><span>36"</span><span>42"</span></div>
+                  </>
+                ) : (
+                  <>
+                    <div className="chart-row"><span>M</span><span>27</span><span>38</span></div>
+                    <div className="chart-row"><span>L</span><span>28</span><span>40</span></div>
+                    <div className="chart-row"><span>XL</span><span>29</span><span>42</span></div>
+                    <div className="chart-row"><span>XXL</span><span>30</span><span>44</span></div>
+                  </>
+                )}
+
+                <p className="note">
+                  {product.sizeChart?.note 
+                    ? `*${product.sizeChart.note}`
+                    : `*${isPlayerEdition ? 'Player Edition features a slim athletic fit. Size up for comfort.' : 'Fan Edition features a standard relaxed fit. Order your normal size.'}`
+                  }
+                </p>
               </div>
-              <div className="chart-row">
-                <span>M</span>
-                <span>27</span>
-                <span>38</span>
-              </div>
-              <div className="chart-row">
-                <span>L</span>
-                <span>28</span>
-                <span>40</span>
-              </div>
-              <div className="chart-row">
-                <span>XL</span>
-                <span>29</span>
-                <span>42</span>
-              </div>
-              <div className="chart-row">
-                <span>XXL</span>
-                <span>30</span>
-                <span>44</span>
-              </div>
-              <p className="note">*{isPlayerEdition ? 'Player Edition features a slim athletic fit. Size up for comfort.' : 'Fan Edition features a standard relaxed fit. Order your normal size.'}</p>
             </div>
-          </div>
+          )}
 
           <div className="product-description mobile-only">
             {product.description && (
