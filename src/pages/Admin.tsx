@@ -9,17 +9,19 @@ import AdminOrders from '../components/Admin/AdminOrders';
 import AdminInventory from '../components/Admin/AdminInventory';
 import ProductForm from '../components/Admin/ProductForm';
 import PromoCodeManager from '../components/Admin/PromoCodeManager';
+import CategoryManager from '../components/Admin/CategoryManager';
 import './Admin.css';
 
 const Admin: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'coupons'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'categories' | 'coupons'>('orders');
   
   const { showToast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [productsList, setProductsList] = useState<Product[]>([]);
+  const [categoriesList, setCategoriesList] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -64,15 +66,30 @@ const Admin: React.FC = () => {
     }
   }, []);
 
+  const fetchCategories = useCallback(async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'categories'));
+      if (!querySnapshot.empty) {
+        const cats = querySnapshot.docs.map(doc => doc.data().name as string);
+        setCategoriesList(cats);
+      } else {
+        setCategoriesList(['Jerseys', 'T-Shirts', 'Trousers', 'Outerwear', 'Accessories']);
+      }
+    } catch (error) {
+      console.error("Error fetching categories: ", error);
+    }
+  }, []);
+
   useEffect(() => {
     if (user) {
+      fetchCategories();
       const loadData = async () => {
         if (activeTab === 'orders') await fetchOrders();
         if (activeTab === 'inventory') await fetchProducts();
       };
       loadData();
     }
-  }, [activeTab, user, fetchOrders, fetchProducts]);
+  }, [activeTab, user, fetchOrders, fetchProducts, fetchCategories]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,6 +137,8 @@ const Admin: React.FC = () => {
         price: productData.price!,
         img: productData.img!,
         inStock: productData.inStock,
+        description: productData.description || '',
+        features: productData.features || [],
         images: productData.images,
         availableSizes: productData.availableSizes
       };
@@ -233,6 +252,12 @@ const Admin: React.FC = () => {
           INVENTORY
         </button>
         <button 
+          className={`admin-tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
+          onClick={() => setActiveTab('categories')}
+        >
+          CATEGORIES
+        </button>
+        <button 
           className={`admin-tab-btn ${activeTab === 'coupons' ? 'active' : ''}`}
           onClick={() => setActiveTab('coupons')}
         >
@@ -256,6 +281,7 @@ const Admin: React.FC = () => {
                 <ProductForm 
                   key={editingProduct?.id || 'new'}
                   editingProduct={editingProduct} 
+                  categories={categoriesList}
                   onSave={handleSaveProduct} 
                   onCancel={() => setEditingProduct(null)} 
                 />
@@ -265,6 +291,13 @@ const Admin: React.FC = () => {
                   onDelete={handleDeleteProduct} 
                 />
               </div>
+            )}
+
+            {activeTab === 'categories' && (
+              <CategoryManager 
+                categories={categoriesList} 
+                onRefresh={fetchCategories} 
+              />
             )}
 
             {activeTab === 'coupons' && (

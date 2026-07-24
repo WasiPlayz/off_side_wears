@@ -6,9 +6,16 @@ export interface Product {
   name: string;
   price: string;
   img: string;
+  description?: string;
+  features?: string[];
   images?: string[];
   inStock?: boolean;
   availableSizes?: string[];
+}
+
+export interface CategoryItem {
+  id: string;
+  name: string;
 }
 
 export interface CartItem extends Product {

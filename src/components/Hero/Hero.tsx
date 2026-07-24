@@ -13,8 +13,7 @@ const Hero: React.FC = () => {
             WEAR <span className="highlight">YOUR GAME</span>
           </h1>
           <p className="hero-subtitle">
-            Experience the pinnacle of football engineering. Authenticity in every fiber, 
-            designed for those who command the pitch and the streets.
+            Discover elite jerseys, t-shirts, trousers, and athletic wear. Premium authenticity in every fiber, designed for performance on the pitch and style on the streets.
           </p>
           <div className="hero-actions">
             <button className="btn-primary" onClick={() => navigate('/shop')}>EXPLORE SHOP</button>

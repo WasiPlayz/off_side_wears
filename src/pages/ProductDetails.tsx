@@ -108,13 +108,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
     }
   };
 
-  const isPlayerEdition = product.category.toUpperCase().includes('PLAYER');
-  const sizes = ['M', 'L', 'XL', 'XXL'];
+  const isPlayerEdition = product.category?.toUpperCase().includes('PLAYER');
+  const sizes = (product.availableSizes && product.availableSizes.length > 0) 
+    ? product.availableSizes 
+    : ['M', 'L', 'XL', 'XXL'];
   const gallery = (product.images && product.images.length > 0) ? product.images : [product.img || '/offside_wears.jpeg'];
   const isInStock = product.inStock !== false;
 
   const isSizeAvailable = (size: string) => {
-    if (!product.availableSizes) return true;
+    if (!product.availableSizes || product.availableSizes.length === 0) return true;
     return product.availableSizes.includes(size);
   };
 
@@ -259,8 +261,19 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
           </div>
 
           <div className="product-description desktop-only">
+            {product.description && (
+              <div style={{ marginBottom: '1.5rem', color: '#ccc', lineHeight: '1.7', fontSize: '0.9rem' }}>
+                <p>{product.description}</p>
+              </div>
+            )}
             <h3>TECHNICAL SPECIFICATIONS</h3>
-            {isPlayerEdition ? (
+            {product.features && product.features.length > 0 ? (
+              <ul>
+                {product.features.map((feat, i) => (
+                  <li key={i}>{feat}</li>
+                ))}
+              </ul>
+            ) : isPlayerEdition ? (
               <ul>
                 <li><strong>Elite 1:1 Grade:</strong> Identical to what the pros wear on the pitch.</li>
                 <li><strong>Advanced Breathability:</strong> Micro-perforated fabric for superior airflow and cooling.</li>
@@ -401,8 +414,19 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, isLoading }) 
           </div>
 
           <div className="product-description mobile-only">
+            {product.description && (
+              <div style={{ marginBottom: '1rem', color: '#ccc', fontSize: '0.85rem' }}>
+                <p>{product.description}</p>
+              </div>
+            )}
             <h3>TECHNICAL SPECIFICATIONS</h3>
-            {isPlayerEdition ? (
+            {product.features && product.features.length > 0 ? (
+              <ul>
+                {product.features.map((feat, i) => (
+                  <li key={i}>{feat}</li>
+                ))}
+              </ul>
+            ) : isPlayerEdition ? (
               <ul>
                 <li>Elite 1:1 Grade Pitch Version</li>
                 <li>Micro-perforated Breathable Fabric</li>
