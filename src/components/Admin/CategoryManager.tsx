@@ -36,7 +36,11 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ categories, onRefresh
       onRefresh();
     } catch (error: any) {
       console.error('Error adding category:', error);
-      showToast(`FAILED TO ADD CATEGORY: ${error?.message || 'UNKNOWN ERROR'}`, 'error');
+      if (error?.code === 'permission-denied' || error?.message?.includes('permissions')) {
+        showToast('FIREBASE PERMISSION ERROR: Update Firestore Security Rules in Firebase Console to allow "categories" writes', 'error');
+      } else {
+        showToast(`FAILED TO ADD CATEGORY: ${error?.message || 'UNKNOWN ERROR'}`, 'error');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -51,7 +55,11 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ categories, onRefresh
       onRefresh();
     } catch (error: any) {
       console.error('Error deleting category:', error);
-      showToast(`FAILED TO DELETE CATEGORY: ${error?.message || 'UNKNOWN ERROR'}`, 'error');
+      if (error?.code === 'permission-denied' || error?.message?.includes('permissions')) {
+        showToast('FIREBASE PERMISSION ERROR: Update Firestore Security Rules in Firebase Console to allow "categories" deletes', 'error');
+      } else {
+        showToast(`FAILED TO DELETE CATEGORY: ${error?.message || 'UNKNOWN ERROR'}`, 'error');
+      }
     }
   };
 

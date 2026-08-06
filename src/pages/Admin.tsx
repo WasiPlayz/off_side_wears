@@ -80,16 +80,25 @@ const Admin: React.FC = () => {
         const seeded: CategoryItem[] = [];
         for (const name of defaults) {
           const docId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          await setDoc(doc(db, 'categories', docId), {
-            name,
-            createdAt: serverTimestamp()
-          });
+          try {
+            await setDoc(doc(db, 'categories', docId), {
+              name,
+              createdAt: serverTimestamp()
+            });
+          } catch (e) {
+            console.warn(`Initial category seed for "${name}" skipped due to security rules:`, e);
+          }
           seeded.push({ id: docId, name });
         }
         setCategoriesList(seeded);
       }
     } catch (error) {
       console.error("Error fetching categories: ", error);
+      const defaults = ['Jerseys', 'PLAYER EDITION', 'FAN EDITION', 'T-Shirts', 'Trousers', 'Outerwear', 'Accessories'];
+      setCategoriesList(defaults.map(name => ({
+        id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        name
+      })));
     }
   }, []);
 
