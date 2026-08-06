@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { collection, query, orderBy, getDocs, updateDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, updateDoc, doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { db, auth } from '../firebase';
-import type { Product, Order } from '../types';
+import type { Product, Order, CategoryItem } from '../types';
 import { useToast } from '../context/ToastContext';
 import AdminOrders from '../components/Admin/AdminOrders';
 import AdminInventory from '../components/Admin/AdminInventory';
@@ -21,7 +21,7 @@ const Admin: React.FC = () => {
   const { showToast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [productsList, setProductsList] = useState<Product[]>([]);
-  const [categoriesList, setCategoriesList] = useState<string[]>([]);
+  const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -70,10 +70,23 @@ const Admin: React.FC = () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'categories'));
       if (!querySnapshot.empty) {
-        const cats = querySnapshot.docs.map(doc => doc.data().name as string);
+        const cats = querySnapshot.docs.map(docSnap => ({
+          id: docSnap.id,
+          name: (docSnap.data().name as string) || docSnap.id
+        }));
         setCategoriesList(cats);
       } else {
-        setCategoriesList(['Jerseys', 'T-Shirts', 'Trousers', 'Outerwear', 'Accessories']);
+        const defaults = ['Jerseys', 'PLAYER EDITION', 'FAN EDITION', 'T-Shirts', 'Trousers', 'Outerwear', 'Accessories'];
+        const seeded: CategoryItem[] = [];
+        for (const name of defaults) {
+          const docId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          await setDoc(doc(db, 'categories', docId), {
+            name,
+            createdAt: serverTimestamp()
+          });
+          seeded.push({ id: docId, name });
+        }
+        setCategoriesList(seeded);
       }
     } catch (error) {
       console.error("Error fetching categories: ", error);
@@ -277,22 +290,30 @@ const Admin: React.FC = () => {
               <AdminOrders orders={orders} updateStatus={updateOrderStatus} />
             )}
 
-            {activeTab === 'inventory' && (
-              <div>
-                <ProductForm 
-                  key={editingProduct?.id || 'new'}
-                  editingProduct={editingProduct} 
-                  categories={categoriesList}
-                  onSave={handleSaveProduct} 
-                  onCancel={() => setEditingProduct(null)} 
-                />
-                <AdminInventory 
-                  products={productsList} 
-                  onEdit={handleEditClick} 
-                  onDelete={handleDeleteProduct} 
-                />
-              </div>
-            )}
+            {activeTab === 'inventory' && (() => {
+              const categoryNamesForForm = Array.from(
+                new Set([
+                  ...categoriesList.map(c => c.name),
+                  ...productsList.map(p => p.category).filter(Boolean)
+                ])
+              );
+              return (
+                <div>
+                  <ProductForm 
+                    key={editingProduct?.id || 'new'}
+                    editingProduct={editingProduct} 
+                    categories={categoryNamesForForm}
+                    onSave={handleSaveProduct} 
+                    onCancel={() => setEditingProduct(null)} 
+                  />
+                  <AdminInventory 
+                    products={productsList} 
+                    onEdit={handleEditClick} 
+                    onDelete={handleDeleteProduct} 
+                  />
+                </div>
+              );
+            })()}
 
             {activeTab === 'categories' && (
               <CategoryManager 

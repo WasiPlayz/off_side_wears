@@ -8,16 +8,6 @@ interface ProductFormProps {
   onCancel: () => void;
 }
 
-const DEFAULT_CATEGORIES = [
-  'Jerseys',
-  'PLAYER EDITION',
-  'FAN EDITION',
-  'T-Shirts',
-  'Trousers',
-  'Outerwear',
-  'Accessories'
-];
-
 const PRESET_SIZES = [
   'S', 'M', 'L', 'XL', 'XXL', '3XL',
   '28', '30', '32', '34', '36', '38',
@@ -32,7 +22,7 @@ const DEFAULT_JERSEY_ROWS: SizeChartRow[] = [
 ];
 
 const ProductForm: React.FC<ProductFormProps> = ({ editingProduct, categories = [], onSave, onCancel }) => {
-  const allCategories = Array.from(new Set([...DEFAULT_CATEGORIES, ...categories]));
+  const allCategories = categories.length > 0 ? categories : ['Jerseys'];
 
   const [name, setName] = useState(editingProduct?.name || '');
   const [category, setCategory] = useState(editingProduct?.category || allCategories[0] || 'Jerseys');
